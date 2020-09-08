@@ -1,0 +1,7 @@
+[python]
+home = "."
+library_name = "python38.dll"
+paths = ["lib", "DLLS", "python-nionswift/lib/site-packages"]
+
+[app]
+identifier = "nionui_app.nionswift"
