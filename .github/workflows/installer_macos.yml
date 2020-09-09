@@ -1,0 +1,107 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-10.15]
+        python-version: [3.8]
+
+    env:
+      app_name: "Nion Swift 0.15.0"
+      product_name: NionSwift-0.15.0
+      product_identifier: Nion_Swift_0_15_0
+      qt_version: 5.14.2
+      qt_platform: clang_64
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Display Python version
+      run: python -c "import sys; print(sys.version)"
+    - name: Build
+      run: |
+        mkdir venv
+        python -m venv venv/installer
+        source venv/installer/bin/activate
+        python -m pip install --upgrade pip
+
+        pip install aqtinstall
+        mkdir Qt
+        python -m aqt install --outputdir Qt $qt_version mac desktop -m qtcore qtgui qtnetwork qtwidgets qtxml
+        export Qt5_DIR=`pwd`/Qt/$qt_version/$qt_platform/lib/cmake/Qt5
+        pip install numpy
+        git clone https://github.com/nion-software/nionui-tool.git
+        git clone https://github.com/nion-software/nionswift-tool.git
+        pushd nionui-tool/launcher
+        cmake CMakeLists.txt
+        cmake --build . --config Release
+        popd
+
+        TOOL_SRC=nionui-tool/launcher/build
+        rm -rf dist; mkdir -p dist/
+        cp -R "$TOOL_SRC/Nion UI Launcher.app" "dist/$app_name.app"
+
+        curl -O https://www.python.org/ftp/python/3.8.5/python-3.8.5-macosx10.9.pkg
+        md5 python-3.8.5-macosx10.9.pkg
+        mkdir python-3.8.5-macosx10.9
+        xar -xf python-3.8.5-macosx10.9.pkg -C python-3.8.5-macosx10.9
+        rm -rf Python.framework; mkdir Python.framework
+        tar -zxf python-3.8.5-macosx10.9/Python_Framework.pkg/Payload -C Python.framework
+        echo "Running fix"
+        python mac_fix_framework.py Python.framework/
+        rm -rf "dist/$app_name.app/Contents/Frameworks/Python.framework"
+        cp -R Python.framework "dist/$app_name.app/Contents/Frameworks/"
+
+        python3.8 -m venv python-nionswift
+        source python-nionswift/bin/activate
+        python -m pip install nionswift
+        deactivate
+        mkdir -p "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.8"
+        cp -R python-nionswift/lib/python3.8/site-packages "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.8"
+
+        cp mac_toolconfig.toml "dist/$app_name.app/Contents/MacOS/toolconfig.toml"
+        cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
+
+        #pip install pyinstaller
+        #pip install nionswift
+        #pyinstaller --clean --windowed --onedir -d noarchive \
+        #  --add-data "venv/installer/lib/python3.8/site-packages/nion/swift/model/resources:nion/swift/model/resources" \
+        #  --add-data "venv/installer/lib/python3.8/site-packages/nion/swift/resources:nion/swift/resources" \
+        #  --add-data "venv/installer/lib/python3.8/site-packages/nion/ui/resources:nion/ui/resources" \
+        #  --exclude-module tkinter --hidden-import nionswift_plugin.none --hidden-import nionswift_plugin.DM_IO \
+        #  --hidden-import nionswift_plugin.TIFF_IO --hidden-import nionswift_plugin.none \
+        #  --icon nionui-tool/launcher/Graphics/MacIcon.icns --osx-bundle-identifier com.nion.ui.launcher \
+        #  --name "$app_name" mac_runswift.py -y
+
+        #cp -R "$TOOL_SRC/Nion UI Launcher.app/Contents/Frameworks/"* "dist/$app_name.app/Contents/Frameworks"
+        #cp -R "$TOOL_SRC/Nion UI Launcher.app/Contents/PlugIns" "dist/$app_name.app/Contents"
+        #mv "dist/$app_name.app/Contents/Resources" "dist/$app_name.app/Contents/ResourcesX"
+        #cp -R "$TOOL_SRC/Nion UI Launcher.app/Contents/Resources" "dist/$app_name.app/Contents/Resources"
+        #cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
+        ## mv "dist/$app_name.app/Contents/ResourcesX/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
+        #rsync -a "dist/$app_name.app/Contents/ResourcesX/" "dist/$app_name.app/Contents/MacOS/"
+        #cp "$TOOL_SRC/Nion UI Launcher.app/Contents/MacOS/Nion UI Launcher" "dist/$app_name.app/Contents/MacOS/$app_name"
+        #cp mac_toolconfig.toml "dist/$app_name.app/Contents/MacOS/toolconfig.toml"
+        #rm -rf "dist/$app_name.app/Contents/ResourcesX"
+
+        #rm -rf "dist/$app_name"
+        ls dist
+        hdiutil create tmp.dmg -ov -volname "$app_name Install" -fs HFS+ -srcfolder "dist/"
+        hdiutil convert tmp.dmg -format UDZO -o "$product_name.dmg"
+    - name: Upload Product DMG
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.product_name }}.dmg
+        path: ${{ env.product_name }}.dmg

@@ -1,0 +1,7 @@
+[python]
+home = "../Frameworks/Python.framework/Versions/3.8"
+library_name = "lib/libpython3.8.dylib"
+paths = ["lib/python38.zip", "lib/python3.8", "lib/python3.8/lib-dynload", "../../../../MacOS/python-nionswift/lib/python3.8/site-packages"]
+
+[app]
+identifier = "nionui_app.nionswift"
