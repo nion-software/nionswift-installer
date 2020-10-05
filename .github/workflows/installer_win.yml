@@ -18,8 +18,9 @@ jobs:
     env:
       product_name: NionSwift-0.15.0
       product_identifier: Nion_Swift_0_15_0
-      qt_version: 5.15.0
+      qt_version: 5.15.1
       qt_platform: msvc2019_64
+      python_version: 3.8.6
 
     steps:
     - uses: actions/checkout@v2
@@ -50,9 +51,9 @@ jobs:
         cmake --build . --config Release
         popd
 
-        $PYTHON_FILE = "python-3.8.5-amd64"
+        $PYTHON_FILE = "python-${env:python_version}-amd64"
         $exePath = Join-Path (Get-Location).path "$PYTHON_FILE.exe"
-        (New-Object Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.8.5/$PYTHON_FILE.exe", $exePath)
+        (New-Object Net.WebClient).DownloadFile("https://www.python.org/ftp/python/${env:python_version}/$PYTHON_FILE.exe", $exePath)
 
         cmd /c start /wait "$PYTHON_FILE.exe" /quiet /uninstall
 
