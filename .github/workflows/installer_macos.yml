@@ -19,8 +19,9 @@ jobs:
       app_name: "Nion Swift 0.15.0"
       product_name: NionSwift-0.15.0
       product_identifier: Nion_Swift_0_15_0
-      qt_version: 5.14.2
+      qt_version: 5.15.1
       qt_platform: clang_64
+      python_version: 3.8.6
 
     steps:
     - uses: actions/checkout@v2
@@ -53,12 +54,12 @@ jobs:
         rm -rf dist; mkdir -p dist/
         cp -R "$TOOL_SRC/Nion UI Launcher.app" "dist/$app_name.app"
 
-        curl -O https://www.python.org/ftp/python/3.8.5/python-3.8.5-macosx10.9.pkg
-        md5 python-3.8.5-macosx10.9.pkg
-        mkdir python-3.8.5-macosx10.9
-        xar -xf python-3.8.5-macosx10.9.pkg -C python-3.8.5-macosx10.9
+        curl -O https://www.python.org/ftp/python/$python_version/python-$python_version-macosx10.9.pkg
+        md5 python-$python_version-macosx10.9.pkg
+        mkdir python-$python_version-macosx10.9
+        xar -xf python-$python_version-macosx10.9.pkg -C python-$python_version-macosx10.9
         rm -rf Python.framework; mkdir Python.framework
-        tar -zxf python-3.8.5-macosx10.9/Python_Framework.pkg/Payload -C Python.framework
+        tar -zxf python-$python_version-macosx10.9/Python_Framework.pkg/Payload -C Python.framework
         echo "Running fix"
         python mac_fix_framework.py Python.framework/
         rm -rf "dist/$app_name.app/Contents/Frameworks/Python.framework"
