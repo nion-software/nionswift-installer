@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019]
-        python-version: [3.7]
+        python-version: [3.8]
 
     env:
       product_name: NionSwift-0.15
