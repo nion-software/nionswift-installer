@@ -16,8 +16,8 @@ jobs:
         python-version: [3.7]
 
     env:
-      product_name: NionSwift-0.15.0
-      product_identifier: Nion_Swift_0_15_0
+      product_name: NionSwift-0.15
+      product_identifier: Nion_Swift_0_15
       qt_version: 5.15.1
       qt_platform: msvc2019_64
       python_version: 3.8.6
@@ -97,6 +97,7 @@ jobs:
         mkdir ".\dist\${env:product_identifier}"
         Copy-Item -Recurse -Path .\nionui-tool\launcher\build\Release\* -Destination ".\dist\${env:product_identifier}"
         Copy-Item .\win_toolconfig.toml -Destination ".\dist\${env:product_identifier}\toolconfig.toml"
+        Copy-Item .\nionswift-tool\launcher\Artwork\splash_600x400.png -Destination ".\dist\${env:product_identifier}\splash.png"
         Move-Item -Force ".\dist\${env:product_identifier}\NionUILauncher.exe" ".\dist\${env:product_identifier}\${env:product_identifier}.exe"
         Copy-Item -Recurse -Path "$PYTHON_38_DIR\*" -Destination ".\dist\${env:product_identifier}"
         Copy-Item -Recurse -Path .\python-nionswift\Lib\site-packages -Destination ".\dist\${env:product_identifier}\python-nionswift\Lib\site-packages"
