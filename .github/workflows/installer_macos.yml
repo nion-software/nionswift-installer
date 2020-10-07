@@ -16,9 +16,9 @@ jobs:
         python-version: [3.8]
 
     env:
-      app_name: "Nion Swift 0.15.0"
-      product_name: NionSwift-0.15.0
-      product_identifier: Nion_Swift_0_15_0
+      app_name: "Nion Swift 0.15"
+      product_name: NionSwift-0.15
+      product_identifier: Nion_Swift_0_15
       qt_version: 5.15.1
       qt_platform: clang_64
       python_version: 3.8.6
@@ -95,6 +95,7 @@ jobs:
 
         cp mac_toolconfig.toml "dist/$app_name.app/Contents/MacOS/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
+        cp "nionswift-tool/launcher/Artwork/splash_600x400.png" "dist/$app_name.app/Contents/Resources/splash.png"
 
         #pip install pyinstaller
         #pip install nionswift
