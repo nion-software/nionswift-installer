@@ -67,7 +67,28 @@ jobs:
 
         python3.8 -m venv python-nionswift
         source python-nionswift/bin/activate
-        python -m pip install nionswift
+
+        # install latest version of nionswift
+        git clone https://github.com/nion-software/nionutils.git
+        git clone https://github.com/nion-software/niondata.git
+        git clone https://github.com/nion-software/nionui.git
+        git clone https://github.com/nion-software/nionswift.git
+        git clone https://github.com/nion-software/nionswift-io.git
+        git clone https://github.com/nion-software/nionswift-instrumentation-kit.git
+        git clone https://github.com/nion-software/eels-analysis.git nionswift-eels-analysis
+        git clone https://github.com/nion-software/nionswift-usim.git
+
+        python -m pip install ./nionutils
+        python -m pip install ./niondata
+        python -m pip install ./nionui
+        python -m pip install ./nionswift
+        python -m pip install ./nionswift-instrumentation-kit
+        python -m pip install ./nionswift-eels-analysis
+        python -m pip install ./nionswift-usim
+
+        # or the released version
+        # python -m pip install nionswift
+
         deactivate
         mkdir -p "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.8"
         cp -R python-nionswift/lib/python3.8/site-packages "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.8"
