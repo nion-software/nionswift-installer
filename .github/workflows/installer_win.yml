@@ -62,7 +62,28 @@ jobs:
         & ".\$PYTHON_FILE\python.exe" -m pip install wheel
         & ".\$PYTHON_FILE\python.exe" -m venv python-nionswift
         .\python-nionswift\Scripts\activate
-        python -m pip install nionswift
+
+        # install latest version of nionswift
+        git clone https://github.com/nion-software/nionutils.git
+        git clone https://github.com/nion-software/niondata.git
+        git clone https://github.com/nion-software/nionui.git
+        git clone https://github.com/nion-software/nionswift.git
+        git clone https://github.com/nion-software/nionswift-io.git
+        git clone https://github.com/nion-software/nionswift-instrumentation-kit.git
+        git clone https://github.com/nion-software/eels-analysis.git nionswift-eels-analysis
+        git clone https://github.com/nion-software/nionswift-usim.git
+
+        python -m pip install ./nionutils
+        python -m pip install ./niondata
+        python -m pip install ./nionui
+        python -m pip install ./nionswift
+        python -m pip install ./nionswift-instrumentation-kit
+        python -m pip install ./nionswift-eels-analysis
+        python -m pip install ./nionswift-usim
+
+        # or the released version
+        # python -m pip install nionswift
+
         deactivate
 
         # pyinstaller --clean --windowed --onedir -d noarchive `
