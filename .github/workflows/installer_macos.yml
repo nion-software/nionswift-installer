@@ -45,6 +45,8 @@ jobs:
         pip install numpy
         git clone https://github.com/nion-software/nionui-tool.git
         git clone https://github.com/nion-software/nionswift-tool.git
+        cp nionswift-tool/launcher/CMakeLists.txt nionui-tool/launcher
+        cp nionswift-tool/launcher/LauncherConfig.h nionui-tool/launcher
         pushd nionui-tool/launcher
         cmake CMakeLists.txt
         cmake --build . --config Release
@@ -52,7 +54,8 @@ jobs:
 
         TOOL_SRC=nionui-tool/launcher/build
         rm -rf dist; mkdir -p dist/
-        cp -R "$TOOL_SRC/Nion UI Launcher.app" "dist/$app_name.app"
+        ls $TOOL_SRC
+        cp -R "$TOOL_SRC/Nion Swift.app" "dist/$app_name.app"
 
         curl -O https://www.python.org/ftp/python/$python_version/python-$python_version-macosx10.9.pkg
         md5 python-$python_version-macosx10.9.pkg
