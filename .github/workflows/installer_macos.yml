@@ -17,7 +17,7 @@ jobs:
 
     env:
       app_name: "Nion Swift 0.15"
-      product_name: NionSwift-0.15
+      product_name: NionSwift-0.15.2
       product_identifier: Nion_Swift_0_15
       qt_version: 5.15.1
       qt_platform: clang_64
