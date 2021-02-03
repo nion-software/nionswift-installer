@@ -19,7 +19,7 @@ jobs:
       app_name: "Nion Swift 0.15"
       product_name: NionSwift-0.15.4
       product_identifier: Nion_Swift_0_15
-      qt_version: 5.15.1
+      qt_version: 5.15.2
       qt_platform: clang_64
       python_version: 3.9.1
 
@@ -90,7 +90,7 @@ jobs:
         # python -m pip install ./nionswift-usim
 
         # or the released version
-        python -m pip install nionswift
+        python -m pip install nionswift nionswift-eels-analysis nionswift-usim
 
         deactivate
         mkdir -p "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.9"
