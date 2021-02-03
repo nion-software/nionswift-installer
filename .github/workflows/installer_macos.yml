@@ -13,15 +13,15 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15]
-        python-version: [3.8]
+        python-version: [3.9]
 
     env:
       app_name: "Nion Swift 0.15"
-      product_name: NionSwift-0.15.2
+      product_name: NionSwift-0.15.4
       product_identifier: Nion_Swift_0_15
       qt_version: 5.15.1
       qt_platform: clang_64
-      python_version: 3.8.6
+      python_version: 3.9.1
 
     steps:
     - uses: actions/checkout@v2
@@ -68,33 +68,33 @@ jobs:
         rm -rf "dist/$app_name.app/Contents/Frameworks/Python.framework"
         cp -R Python.framework "dist/$app_name.app/Contents/Frameworks/"
 
-        python3.8 -m venv python-nionswift
+        python3.9 -m venv python-nionswift
         source python-nionswift/bin/activate
 
         # install latest version of nionswift
-        git clone https://github.com/nion-software/nionutils.git
-        git clone https://github.com/nion-software/niondata.git
-        git clone https://github.com/nion-software/nionui.git
-        git clone https://github.com/nion-software/nionswift.git
-        git clone https://github.com/nion-software/nionswift-io.git
-        git clone https://github.com/nion-software/nionswift-instrumentation-kit.git
-        git clone https://github.com/nion-software/eels-analysis.git nionswift-eels-analysis
-        git clone https://github.com/nion-software/nionswift-usim.git
+        # git clone https://github.com/nion-software/nionutils.git
+        # git clone https://github.com/nion-software/niondata.git
+        # git clone https://github.com/nion-software/nionui.git
+        # git clone https://github.com/nion-software/nionswift.git
+        # git clone https://github.com/nion-software/nionswift-io.git
+        # git clone https://github.com/nion-software/nionswift-instrumentation-kit.git
+        # git clone https://github.com/nion-software/eels-analysis.git nionswift-eels-analysis
+        # git clone https://github.com/nion-software/nionswift-usim.git
 
-        python -m pip install ./nionutils
-        python -m pip install ./niondata
-        python -m pip install ./nionui
-        python -m pip install ./nionswift
-        python -m pip install ./nionswift-instrumentation-kit
-        python -m pip install ./nionswift-eels-analysis
-        python -m pip install ./nionswift-usim
+        # python -m pip install ./nionutils
+        # python -m pip install ./niondata
+        # python -m pip install ./nionui
+        # python -m pip install ./nionswift
+        # python -m pip install ./nionswift-instrumentation-kit
+        # python -m pip install ./nionswift-eels-analysis
+        # python -m pip install ./nionswift-usim
 
         # or the released version
-        # python -m pip install nionswift
+        python -m pip install nionswift
 
         deactivate
-        mkdir -p "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.8"
-        cp -R python-nionswift/lib/python3.8/site-packages "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.8"
+        mkdir -p "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.9"
+        cp -R python-nionswift/lib/python3.9/site-packages "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.9"
 
         cp mac_toolconfig.toml "dist/$app_name.app/Contents/MacOS/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
@@ -103,9 +103,9 @@ jobs:
         #pip install pyinstaller
         #pip install nionswift
         #pyinstaller --clean --windowed --onedir -d noarchive \
-        #  --add-data "venv/installer/lib/python3.8/site-packages/nion/swift/model/resources:nion/swift/model/resources" \
-        #  --add-data "venv/installer/lib/python3.8/site-packages/nion/swift/resources:nion/swift/resources" \
-        #  --add-data "venv/installer/lib/python3.8/site-packages/nion/ui/resources:nion/ui/resources" \
+        #  --add-data "venv/installer/lib/python3.9/site-packages/nion/swift/model/resources:nion/swift/model/resources" \
+        #  --add-data "venv/installer/lib/python3.9/site-packages/nion/swift/resources:nion/swift/resources" \
+        #  --add-data "venv/installer/lib/python3.9/site-packages/nion/ui/resources:nion/ui/resources" \
         #  --exclude-module tkinter --hidden-import nionswift_plugin.none --hidden-import nionswift_plugin.DM_IO \
         #  --hidden-import nionswift_plugin.TIFF_IO --hidden-import nionswift_plugin.none \
         #  --icon nionui-tool/launcher/Graphics/MacIcon.icns --osx-bundle-identifier com.nion.ui.launcher \
