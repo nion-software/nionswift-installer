@@ -13,14 +13,14 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019]
-        python-version: [3.8]
+        python-version: [3.9]
 
     env:
       product_name: NionSwift-0.15
       product_identifier: Nion_Swift_0_15
       qt_version: 5.15.1
       qt_platform: msvc2019_64
-      python_version: 3.8.6
+      python_version: 3.9.1
 
     steps:
     - uses: actions/checkout@v2
@@ -57,33 +57,33 @@ jobs:
 
         cmd /c start /wait "$PYTHON_FILE.exe" /quiet /uninstall
 
-        $PYTHON_38_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
-        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_38_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
+        $PYTHON_39_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
+        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_39_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
         & ".\$PYTHON_FILE\python.exe" -m pip install wheel
         & ".\$PYTHON_FILE\python.exe" -m venv python-nionswift
         .\python-nionswift\Scripts\activate
 
         # install latest version of nionswift
-        git clone https://github.com/nion-software/nionutils.git
-        git clone https://github.com/nion-software/niondata.git
-        git clone https://github.com/nion-software/nionui.git
-        git clone https://github.com/nion-software/nionswift.git
-        git clone https://github.com/nion-software/nionswift-io.git
-        git clone https://github.com/nion-software/nionswift-instrumentation-kit.git
-        git clone https://github.com/nion-software/eels-analysis.git nionswift-eels-analysis
-        git clone https://github.com/nion-software/nionswift-usim.git
+        # git clone https://github.com/nion-software/nionutils.git
+        # git clone https://github.com/nion-software/niondata.git
+        # git clone https://github.com/nion-software/nionui.git
+        # git clone https://github.com/nion-software/nionswift.git
+        # git clone https://github.com/nion-software/nionswift-io.git
+        # git clone https://github.com/nion-software/nionswift-instrumentation-kit.git
+        # git clone https://github.com/nion-software/eels-analysis.git nionswift-eels-analysis
+        # git clone https://github.com/nion-software/nionswift-usim.git
 
-        python -m pip install ./nionutils
-        python -m pip install ./niondata
-        python -m pip install ./nionui
-        python -m pip install ./nionswift
-        python -m pip install ./nionswift-instrumentation-kit
-        python -m pip install ./nionswift-eels-analysis
-        python -m pip install ./nionswift-usim
+        # python -m pip install ./nionutils
+        # python -m pip install ./niondata
+        # python -m pip install ./nionui
+        # python -m pip install ./nionswift
+        # python -m pip install ./nionswift-instrumentation-kit
+        # python -m pip install ./nionswift-eels-analysis
+        # python -m pip install ./nionswift-usim
         python -m pip install numpy==1.19.3  # see https://developercommunity.visualstudio.com/content/problem/1207405/fmod-after-an-update-to-windows-2004-is-causing-a.html
 
         # or the released version
-        # python -m pip install nionswift
+        python -m pip install nionswift nionswift-eels-analysis nionswift-usim
 
         deactivate
 
@@ -100,7 +100,7 @@ jobs:
         Copy-Item .\win_toolconfig.toml -Destination ".\dist\${env:product_identifier}\toolconfig.toml"
         Copy-Item .\nionswift-tool\launcher\Artwork\splash_600x400.png -Destination ".\dist\${env:product_identifier}\splash.png"
         Move-Item -Force ".\dist\${env:product_identifier}\NionUILauncher.exe" ".\dist\${env:product_identifier}\${env:product_identifier}.exe"
-        Copy-Item -Recurse -Path "$PYTHON_38_DIR\*" -Destination ".\dist\${env:product_identifier}"
+        Copy-Item -Recurse -Path "$PYTHON_39_DIR\*" -Destination ".\dist\${env:product_identifier}"
         Copy-Item -Recurse -Path .\python-nionswift\Lib\site-packages -Destination ".\dist\${env:product_identifier}\python-nionswift\Lib\site-packages"
 
         pushd wix
