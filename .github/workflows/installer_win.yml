@@ -20,7 +20,7 @@ jobs:
       product_identifier: Nion_Swift_0_15
       qt_version: 5.15.2
       qt_platform: msvc2019_64
-      python_version: 3.9.1
+      python_version: 3.9.2
 
     steps:
     - uses: actions/checkout@v2
