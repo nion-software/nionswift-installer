@@ -12,52 +12,72 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # installer is always built with a specific version of Python
         os: [macos-10.15]
         python-version: [3.9]
 
     env:
+      # define environment and configuration variables here.
+      # app_name is how the application will be named on the disk image.
+      # product_name is the name of the disk image (.dmg) that gets built.
+      # qt_version, qt_platform specify which version of Qt to use.
+      # these should be regularly updated to the latest usable version.
+      # python_version specifies which version of Python to use.
+      # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 0.15"
       product_name: NionSwift-0.15.5
-      product_identifier: Nion_Swift_0_15
       qt_version: 5.15.2
       qt_platform: clang_64
       python_version: 3.9.2
 
     steps:
     - uses: actions/checkout@v2
+
+    # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
+
+    # next build the installer (it's a disk image with the application).
     - name: Build
       run: |
+        # the first step in the build process is to create a virtual environment to be
+        # used by the installation scripts and activate it. also update pip.
         mkdir venv
         python -m venv venv/installer
         source venv/installer/bin/activate
         python -m pip install --upgrade pip
 
+        # next, install Qt using the aqt tool. only install the required Qt modules.
+        # then configure the Qt5_DIR variable (used by cmake), install numpy (used by
+        # cmake). then git clone the tool source code. finally run cmake.
         pip install aqtinstall
         mkdir Qt
         python -m aqt install --outputdir Qt $qt_version mac desktop -m qtcore qtgui qtnetwork qtwidgets qtxml
         export Qt5_DIR=`pwd`/Qt/$qt_version/$qt_platform/lib/cmake/Qt5
         pip install numpy
-        git clone https://github.com/nion-software/nionui-tool.git
         git clone https://github.com/nion-software/nionswift-tool.git
-        cp nionswift-tool/launcher/CMakeLists.txt nionui-tool/launcher
-        cp nionswift-tool/launcher/LauncherConfig.h nionui-tool/launcher
-        pushd nionui-tool/launcher
+        pushd nionswift-tool/launcher
         cmake CMakeLists.txt
         cmake --build . --config Release
         popd
 
-        TOOL_SRC=nionui-tool/launcher/build
+        # copy the application built in the last step to the distribution directory.
         rm -rf dist; mkdir -p dist/
-        ls $TOOL_SRC
-        cp -R "$TOOL_SRC/Nion Swift.app" "dist/$app_name.app"
+        cp -R "nionswift-tool/launcher/build/Nion Swift.app" "dist/$app_name.app"
 
+        # now install a fresh Python from python.org. use a version from the earliest supported target OS.
+        # on macOS, manually extract Python from the pkg. then run mac_fix_framework to fix dylib references.
+        # the default Python assumes it is installed in /Library/Frameworks. However, the tool application
+        # needs to be relocatable. So mac_fix_frameworks adjusts all of the dylibs to be located relative
+        # to the tool executable (rpath).
+        # finally copy the extracted Python to the distribution directory, create a new environment (python-nionswift),
+        # and activate the environment.
         curl -O https://www.python.org/ftp/python/$python_version/python-$python_version-macosx10.9.pkg
+        # print md5 to be used for verification if desired.
         md5 python-$python_version-macosx10.9.pkg
         mkdir python-$python_version-macosx10.9
         xar -xf python-$python_version-macosx10.9.pkg -C python-$python_version-macosx10.9
@@ -67,11 +87,11 @@ jobs:
         python mac_fix_framework.py Python.framework/
         rm -rf "dist/$app_name.app/Contents/Frameworks/Python.framework"
         cp -R Python.framework "dist/$app_name.app/Contents/Frameworks/"
-
         python3.9 -m venv python-nionswift
         source python-nionswift/bin/activate
 
-        # install latest version of nionswift
+        # install latest version of nionswift (UNUSED EXCEPT FOR DEBUGGING)
+
         # git clone https://github.com/nion-software/nionutils.git
         # git clone https://github.com/nion-software/niondata.git
         # git clone https://github.com/nion-software/nionui.git
@@ -89,43 +109,25 @@ jobs:
         # python -m pip install ./nionswift-eels-analysis
         # python -m pip install ./nionswift-usim
 
-        # or the released version
+        # install the latest released version in the activated Python environment.
         python -m pip install nionswift nionswift-eels-analysis nionswift-usim
 
+        # deactivate the environment since everything is installed.
         deactivate
+
+        # configure the environment by copying site-packages, the toolconfig.toml file, application icon,
+        # and splash screen.
         mkdir -p "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.9"
         cp -R python-nionswift/lib/python3.9/site-packages "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.9"
-
         cp mac_toolconfig.toml "dist/$app_name.app/Contents/MacOS/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
         cp "nionswift-tool/launcher/Artwork/splash_600x400.png" "dist/$app_name.app/Contents/Resources/splash.png"
 
-        #pip install pyinstaller
-        #pip install nionswift
-        #pyinstaller --clean --windowed --onedir -d noarchive \
-        #  --add-data "venv/installer/lib/python3.9/site-packages/nion/swift/model/resources:nion/swift/model/resources" \
-        #  --add-data "venv/installer/lib/python3.9/site-packages/nion/swift/resources:nion/swift/resources" \
-        #  --add-data "venv/installer/lib/python3.9/site-packages/nion/ui/resources:nion/ui/resources" \
-        #  --exclude-module tkinter --hidden-import nionswift_plugin.none --hidden-import nionswift_plugin.DM_IO \
-        #  --hidden-import nionswift_plugin.TIFF_IO --hidden-import nionswift_plugin.none \
-        #  --icon nionui-tool/launcher/Graphics/MacIcon.icns --osx-bundle-identifier com.nion.ui.launcher \
-        #  --name "$app_name" mac_runswift.py -y
-
-        #cp -R "$TOOL_SRC/Nion UI Launcher.app/Contents/Frameworks/"* "dist/$app_name.app/Contents/Frameworks"
-        #cp -R "$TOOL_SRC/Nion UI Launcher.app/Contents/PlugIns" "dist/$app_name.app/Contents"
-        #mv "dist/$app_name.app/Contents/Resources" "dist/$app_name.app/Contents/ResourcesX"
-        #cp -R "$TOOL_SRC/Nion UI Launcher.app/Contents/Resources" "dist/$app_name.app/Contents/Resources"
-        #cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
-        ## mv "dist/$app_name.app/Contents/ResourcesX/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
-        #rsync -a "dist/$app_name.app/Contents/ResourcesX/" "dist/$app_name.app/Contents/MacOS/"
-        #cp "$TOOL_SRC/Nion UI Launcher.app/Contents/MacOS/Nion UI Launcher" "dist/$app_name.app/Contents/MacOS/$app_name"
-        #cp mac_toolconfig.toml "dist/$app_name.app/Contents/MacOS/toolconfig.toml"
-        #rm -rf "dist/$app_name.app/Contents/ResourcesX"
-
-        #rm -rf "dist/$app_name"
-        ls dist
+        # finally, create the disk image
         hdiutil create tmp.dmg -ov -volname "$app_name Install" -fs HFS+ -srcfolder "dist/"
         hdiutil convert tmp.dmg -format UDZO -o "$product_name.dmg"
+
+    # finally, upload the artifacts of the build so they are available on the GitHub action page.
     - name: Upload Product DMG
       uses: actions/upload-artifact@v2
       with:
