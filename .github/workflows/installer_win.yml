@@ -12,58 +12,86 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # installer is always built with a specific version of Python
         os: [windows-2019]
         python-version: [3.9]
 
     env:
+      # define environment and configuration variables here.
+      # product_name must be NionSwift-{version_major}.{version_minor}
+      # it will be the name of the installed application.
+      # product_identifier is only used to name the build directory
+      # version_overall is used to construct the installed subdirectory (NionSwift 15)
+      # this is seen by end users.
+      # version major/minor/patch are used to construct the installed file name.
+      # this is not typically seen by end users. patch is currently unused.
+      # qt_version, qt_platform specify which version of Qt to use.
+      # these should be regularly updated to the latest usable version.
+      # python_version specifies which version of Python to use.
+      # this should be regularly updated to the latest usable version.
       product_name: NionSwift-0.15
       product_identifier: Nion_Swift_0_15
+      version_overall: 15
+      version_major: 0
+      version_minor: 15
+      version_patch: 5
       qt_version: 5.15.2
       qt_platform: msvc2019_64
       python_version: 3.9.2
 
     steps:
     - uses: actions/checkout@v2
+
+    # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
+
+    # next build the installer (it's a disk image with the application).
     - name: Build
       run: |
+        # the first step in the build process is to create a virtual environment to be
+        # used by the installation scripts and activate it. also update pip.
         mkdir venv
         python -m venv venv/installer
         venv\installer\Scripts\activate
         python -m pip install --upgrade pip
 
+        # next, install Qt using the aqt tool. only install the required Qt modules.
+        # then configure the Qt5_DIR variable (used by cmake), install numpy (used by
+        # cmake). then git clone the tool source code. finally run cmake.
         pip install aqtinstall
         mkdir Qt
         python -m aqt install --outputdir Qt ${env:qt_version} windows desktop win64_${env:qt_platform} -m qtcore qtgui qtnetwork qtwidgets qtxml
         $ENV:Qt5_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt5"
         pip install numpy
-        git clone https://github.com/nion-software/nionui-tool.git
         git clone https://github.com/nion-software/nionswift-tool.git
-        Copy-Item nionswift-tool/launcher/Graphics/WinIcon.ico -Destination nionui-tool/launcher/Graphics/WinIcon.ico -Force
-        pushd nionui-tool/launcher
+        pushd nionswift-tool/launcher
         $PYTHON_EXEC = python -c "import sys; print(sys.executable, end='')"
         cmake CMakeLists.txt -DPython3_EXECUTABLE="$PYTHON_EXEC" -DUSE_CONSOLE=OFF
         cmake --build . --config Release
         popd
 
+        # now download and install a fresh Python from python.org.
+        # notice that the existing Python is first uninstalled. then the new one is installed. running this on a
+        # local system will uninstall any existing Python installation.
+        # next run the Python installer to install it into the application directory.
+        # finally, install wheel, create a new environment (python-nionswift), and activate the environment.
         $PYTHON_FILE = "python-${env:python_version}-amd64"
         $exePath = Join-Path (Get-Location).path "$PYTHON_FILE.exe"
         (New-Object Net.WebClient).DownloadFile("https://www.python.org/ftp/python/${env:python_version}/$PYTHON_FILE.exe", $exePath)
-
         cmd /c start /wait "$PYTHON_FILE.exe" /quiet /uninstall
-
         $PYTHON_39_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
         cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_39_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
         & ".\$PYTHON_FILE\python.exe" -m pip install wheel
         & ".\$PYTHON_FILE\python.exe" -m venv python-nionswift
         .\python-nionswift\Scripts\activate
 
-        # install latest version of nionswift
+        # install latest version of nionswift (UNUSED EXCEPT FOR DEBUGGING)
+
         # git clone https://github.com/nion-software/nionutils.git
         # git clone https://github.com/nion-software/niondata.git
         # git clone https://github.com/nion-software/nionui.git
@@ -80,33 +108,30 @@ jobs:
         # python -m pip install ./nionswift-instrumentation-kit
         # python -m pip install ./nionswift-eels-analysis
         # python -m pip install ./nionswift-usim
-        python -m pip install numpy==1.19.3  # see https://developercommunity.visualstudio.com/content/problem/1207405/fmod-after-an-update-to-windows-2004-is-causing-a.html
 
-        # or the released version
+        # install the latest released version in the activated Python environment.
         python -m pip install nionswift nionswift-eels-analysis nionswift-usim
 
+        # deactivate the environment since everything is installed.
         deactivate
 
-        # pyinstaller --clean --windowed --onedir -d noarchive `
-        #   --add-data "venv/installer/Lib/site-packages/nion/swift/model/resources;nion/swift/model/resources" `
-        #   --add-data "venv/installer/Lib/site-packages/nion/swift/resources;nion/swift/resources" `
-        #   --add-data "venv/installer/Lib/site-packages/nion/ui/resources;nion/ui/resources" `
-        #   --exclude-module tkinter --hidden-import nionswift_plugin.none --hidden-import nionswift_plugin.DM_IO `
-        #   --hidden-import nionswift_plugin.TIFF_IO --icon nionswift-tool/launcher/Graphics/WinIcon.ico `
-        #   --name "${env:product_identifier}" win_runswift.py -y
-
+        # configure the environment by copying the built application, the toolconfig.toml file, application icon,
+        # splash screen, the Python files, and site-packages to the final directory.
         mkdir ".\dist\${env:product_identifier}"
-        Copy-Item -Recurse -Path .\nionui-tool\launcher\build\Release\* -Destination ".\dist\${env:product_identifier}"
+        Copy-Item -Recurse -Path .\nionswift-tool\launcher\build\Release\* -Destination ".\dist\${env:product_identifier}"
         Copy-Item .\win_toolconfig.toml -Destination ".\dist\${env:product_identifier}\toolconfig.toml"
         Copy-Item .\nionswift-tool\launcher\Artwork\splash_600x400.png -Destination ".\dist\${env:product_identifier}\splash.png"
-        Move-Item -Force ".\dist\${env:product_identifier}\NionUILauncher.exe" ".\dist\${env:product_identifier}\${env:product_identifier}.exe"
+        Move-Item -Force ".\dist\${env:product_identifier}\NionSwiftLauncher.exe" ".\dist\${env:product_identifier}\${env:product_identifier}.exe"
         Copy-Item -Recurse -Path "$PYTHON_39_DIR\*" -Destination ".\dist\${env:product_identifier}"
         Copy-Item -Recurse -Path .\python-nionswift\Lib\site-packages -Destination ".\dist\${env:product_identifier}\python-nionswift\Lib\site-packages"
 
+        # use CMake + wix extensions to build an installer.
         pushd wix
-        cmake .\CMakeLists.txt -DVERSION_OVERALL=15 -DVERSION_MAJOR=0 -DVERSION_MINOR=15 -DVERSION_PATCH=0
+        cmake .\CMakeLists.txt -DVERSION_OVERALL="${env:version_overall}" -DVERSION_MAJOR="${env:version_major}" -DVERSION_MINOR="${env:version_minor}" -DVERSION_PATCH="${env:version_patch}"
         cpack
         popd
+
+    # finally, upload the artifacts of the build so they are available on the GitHub action page.
     - name: Upload Product Zip
       uses: actions/upload-artifact@v2
       with:
