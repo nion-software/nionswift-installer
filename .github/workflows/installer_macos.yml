@@ -25,7 +25,7 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 0.15"
-      product_name: NionSwift-0.15.5
+      product_name: NionSwift-0.15.6
       qt_version: 5.15.2
       qt_platform: clang_64
       python_version: 3.9.2
