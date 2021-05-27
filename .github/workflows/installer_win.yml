@@ -37,7 +37,7 @@ jobs:
       version_patch: 5
       qt_version: 5.15.2
       qt_platform: msvc2019_64
-      python_version: 3.9.2
+      python_version: 3.9.4
 
     steps:
     - uses: actions/checkout@v2
