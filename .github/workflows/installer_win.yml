@@ -21,7 +21,7 @@ jobs:
       # product_name must be NionSwift-{version_major}.{version_minor}
       # it will be the name of the installed application.
       # product_identifier is only used to name the build directory
-      # version_overall is used to construct the installed subdirectory (NionSwift 15)
+      # version_overall is used to construct the installed subdirectory (NionSwift 16)
       # this is seen by end users.
       # version major/minor/patch are used to construct the installed file name.
       # this is not typically seen by end users. patch is currently unused.
@@ -29,15 +29,15 @@ jobs:
       # these should be regularly updated to the latest usable version.
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
-      product_name: NionSwift-0.15
-      product_identifier: Nion_Swift_0_15
-      version_overall: 15
+      product_name: NionSwift-0.16
+      product_identifier: Nion_Swift_0_16
+      version_overall: 16
       version_major: 0
-      version_minor: 15
-      version_patch: 5
+      version_minor: 16
+      version_patch: 0
       qt_version: 5.15.2
       qt_platform: msvc2019_64
-      python_version: 3.9.4
+      python_version: 3.9.8
 
     steps:
     - uses: actions/checkout@v2
