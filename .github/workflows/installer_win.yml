@@ -44,7 +44,7 @@ jobs:
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
@@ -65,7 +65,7 @@ jobs:
         # cmake). then git clone the tool source code. finally run cmake.
         pip install aqtinstall
         mkdir Qt
-        python -m aqt install --outputdir Qt ${env:qt_version} windows desktop win64_${env:qt_platform} -m qtcore qtgui qtnetwork qtwidgets qtxml
+        python -m aqt install-qt --outputdir Qt windows desktop 5.15.2 win64_${env:qt_platform}
         $ENV:Qt5_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt5"
         pip install numpy
         git clone https://github.com/nion-software/nionswift-tool.git
