@@ -134,7 +134,7 @@ jobs:
     # finally, upload the artifacts of the build so they are available on the GitHub action page.
     - name: Upload Product Zip
       # see https://github.com/actions/upload-artifact/issues/281 to upgrade past 2.2
-      uses: actions/upload-artifact@v2.2
+      uses: actions/upload-artifact@v2.2.4
       with:
         name: ${{ env.product_name }}.zip
         path: dist\${{ env.product_identifier }}
