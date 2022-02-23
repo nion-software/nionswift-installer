@@ -34,10 +34,10 @@ jobs:
       version_overall: 16
       version_major: 0
       version_minor: 16
-      version_patch: 1
+      version_patch: 2
       qt_version: 5.15.2
       qt_platform: msvc2019_64
-      python_version: 3.9.8
+      python_version: 3.9.9
 
     steps:
     - uses: actions/checkout@v2

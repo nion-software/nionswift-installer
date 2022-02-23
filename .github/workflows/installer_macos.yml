@@ -25,10 +25,10 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 0.16"
-      product_name: NionSwift-0.16.1
+      product_name: NionSwift-0.16.2
       qt_version: 5.15.2
       qt_platform: clang_64
-      python_version: 3.9.8
+      python_version: 3.9.9
 
     steps:
     - uses: actions/checkout@v2
