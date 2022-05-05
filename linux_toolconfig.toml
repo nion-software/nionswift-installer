@@ -1,0 +1,20 @@
+# when the tool executable is run with no arguments and this file is present
+# in the same directory as the executable, this file will be used to describe
+# which version of Python to run, how to load it, and which Python script to run.
+#
+# the python section should contain:
+#   home: a path pointing to the Python home directory, typically relative to the tool executable
+#   library_name: the Python library within the home directory.
+#   paths: paths to add to the Python sys.path before launching.
+#
+# the app section should contain:
+#   identifier: the package identifier of the application. in this case, Nion Swift
+
+[python]
+home = "../../../usr"
+library_name = "lib/python3.10/config-3.10-x86_64-linux-gnu/libpython3.10.so"
+# note: 'local' prefix on dist-packages, which is different from the command line version.
+paths = ["lib/python310.zip", "lib/python3.10", "lib/python3.10/lib-dynload", "lib/python3.10/site-packages", "lib/python3/dist-packages", "local/lib/python3.10/dist-packages"]
+
+[app]
+identifier = "nionui_app.nionswift"
