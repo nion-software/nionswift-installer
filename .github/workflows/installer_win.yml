@@ -14,7 +14,7 @@ jobs:
       matrix:
         # installer is always built with a specific version of Python
         os: [windows-2019]
-        python-version: [3.9]
+        python-version: ["3.10"]
 
     env:
       # define environment and configuration variables here.
@@ -34,10 +34,10 @@ jobs:
       version_overall: 16
       version_major: 0
       version_minor: 16
-      version_patch: 2
+      version_patch: 3
       qt_version: 5.15.2
       qt_platform: msvc2019_64
-      python_version: 3.9.9
+      python_version: 3.10.4
 
     steps:
     - uses: actions/checkout@v2
@@ -84,8 +84,8 @@ jobs:
         $exePath = Join-Path (Get-Location).path "$PYTHON_FILE.exe"
         (New-Object Net.WebClient).DownloadFile("https://www.python.org/ftp/python/${env:python_version}/$PYTHON_FILE.exe", $exePath)
         cmd /c start /wait "$PYTHON_FILE.exe" /quiet /uninstall
-        $PYTHON_39_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
-        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_39_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
+        $PYTHON_310_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
+        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_310_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
         & ".\$PYTHON_FILE\python.exe" -m pip install wheel
         & ".\$PYTHON_FILE\python.exe" -m venv python-nionswift
         .\python-nionswift\Scripts\activate
@@ -122,7 +122,7 @@ jobs:
         Copy-Item .\win_toolconfig.toml -Destination ".\dist\${env:product_identifier}\toolconfig.toml"
         Copy-Item .\nionswift-tool\launcher\Artwork\splash_600x400.png -Destination ".\dist\${env:product_identifier}\splash.png"
         Move-Item -Force ".\dist\${env:product_identifier}\NionSwiftLauncher.exe" ".\dist\${env:product_identifier}\${env:product_identifier}.exe"
-        Copy-Item -Recurse -Path "$PYTHON_39_DIR\*" -Destination ".\dist\${env:product_identifier}"
+        Copy-Item -Recurse -Path "$PYTHON_310_DIR\*" -Destination ".\dist\${env:product_identifier}"
         Copy-Item -Recurse -Path .\python-nionswift\Lib\site-packages -Destination ".\dist\${env:product_identifier}\python-nionswift\Lib\site-packages"
 
         # use CMake + wix extensions to build an installer.
