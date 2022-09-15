@@ -34,10 +34,10 @@ jobs:
       version_overall: 16
       version_major: 0
       version_minor: 16
-      version_patch: 3
-      qt_version: 5.15.2
+      version_patch: 5
+      qt_version: 6.3.2
       qt_platform: msvc2019_64
-      python_version: 3.10.4
+      python_version: 3.10.6
 
     steps:
     - uses: actions/checkout@v2
@@ -61,12 +61,14 @@ jobs:
         python -m pip install --upgrade pip
 
         # next, install Qt using the aqt tool. only install the required Qt modules.
-        # then configure the Qt5_DIR variable (used by cmake), install numpy (used by
+        # then configure the Qt6_DIR variable (used by cmake), install numpy (used by
         # cmake). then git clone the tool source code. finally run cmake.
         pip install aqtinstall
         mkdir Qt
-        python -m aqt install-qt --outputdir Qt windows desktop 5.15.2 win64_${env:qt_platform}
-        $ENV:Qt5_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt5"
+        python -m aqt install-qt --outputdir Qt windows desktop 6.3.2 win64_${env:qt_platform}
+        # see https://bugreports.qt.io/browse/QTBUG-97615
+        $ENV:Qt6_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt6"
+        $ENV:QT_ADDITIONAL_PACKAGES_PREFIX_PATH = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}"
         pip install numpy
         git clone https://github.com/nion-software/nionswift-tool.git
         pushd nionswift-tool/launcher
@@ -131,13 +133,15 @@ jobs:
         cpack
         popd
 
+        Compress-Archive ".\dist\${env:product_identifier}" "${{env.product_name}}.zip"
+
     # finally, upload the artifacts of the build so they are available on the GitHub action page.
     - name: Upload Product Zip
       # see https://github.com/actions/upload-artifact/issues/281 to upgrade past 2.2
       uses: actions/upload-artifact@v2.2.4
       with:
         name: ${{ env.product_name }}.zip
-        path: dist\${{ env.product_identifier }}
+        path: ${{ env.product_name }}.zip
     - name: Upload Product MSI
       uses: actions/upload-artifact@v2
       with:
