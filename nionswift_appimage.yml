@@ -99,6 +99,7 @@ AppDir:
     ${APPDIR}/usr/bin/python3.10 get-pip.py
     ${APPDIR}/usr/bin/python3.10 -m pip install nionswift nionswift-usim nionswift-tool
     cp linux_toolconfig.toml ${APPDIR}/usr/bin/NionSwiftLauncher/toolconfig.toml
+    cp ${APPDIR}/usr/bin/NionSwiftLauncher/qt.conf ${APPDIR}/usr/bin/NionSwiftLauncher/qt6.conf
 
 AppImage:
   arch: x86_64
