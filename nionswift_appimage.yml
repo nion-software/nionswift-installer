@@ -102,7 +102,7 @@ AppDir:
 
   after_runtime: |
     APPDIR=./AppDir
-    find ${APPDIR} -name qt6.conf rm -rf {} \;
+    find ${APPDIR} -name qt6.conf -exec rm {} \;
 
 AppImage:
   arch: x86_64
