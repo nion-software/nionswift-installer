@@ -26,6 +26,12 @@ jobs:
       product_name: NionSwift-0.16.5
       python_version: 3.10.6
 
+      # qt_version, qt_platform specify which version of Qt to use.
+      # these should be regularly updated to the latest usable version.
+      # these are only used if building the tool from source.
+      qt_version: 6.3.2
+      qt_platform: macos
+
     steps:
     - uses: actions/checkout@v2
 
@@ -39,6 +45,10 @@ jobs:
 
     # next build the installer (it's a disk image with the application).
     - name: Build
+      env:
+        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
       run: |
         # the first step in the build process is to create a virtual environment to be
         # used by the installation scripts and activate it. also update pip.
@@ -49,6 +59,26 @@ jobs:
 
         # grab nionswift-tool for splash and toml files
         git clone https://github.com/nion-software/nionswift-tool.git
+
+        # OPTIONAL: build tool from source
+        # next, install Qt using the aqt tool. only install the required Qt modules.
+        # then configure the Qt6_DIR variable (used by cmake), install numpy (used by
+        # cmake). then git clone the tool source code. finally run cmake.
+        pip install aqtinstall
+        mkdir Qt
+        echo "Installing Qt $qt_version ($qt_platform)"
+        python -m aqt install-qt --outputdir Qt mac desktop 6.3.2 clang_64
+        ls Qt
+        export Qt6=`pwd`/Qt/$qt_version/$qt_platform
+        export Qt6_DIR="$Qt6/lib/cmake/Qt6"
+        # see https://bugreports.qt.io/browse/QTBUG-97615
+        export CMAKE_PREFIX_PATH="$Qt6"
+        pip install numpy
+        git clone https://github.com/nion-software/nionui-tool.git
+        pushd nionui-tool/launcher
+        cmake CMakeLists.txt
+        cmake --build . --config Release
+        popd
 
         # now install a fresh Python from python.org. use a version from the earliest supported target OS.
         # on macOS, manually extract Python from the pkg. then run mac_fix_framework to fix dylib references.
@@ -94,24 +124,50 @@ jobs:
         # deactivate the environment since everything is installed.
         deactivate
 
+        # OPTIONAL: build tool from source
+        # copy the application built in the last step to the distribution directory.
+        rm -rf dist; mkdir -p dist/
+        cp -R "nionui-tool/launcher/build/Nion UI Launcher.app" "dist/$app_name.app"
+        mv "dist/$app_name.app/Contents/MacOS/Nion UI Launcher" "dist/$app_name.app/Contents/MacOS/Nion Swift"
+        # next two lines are disabled when building from source
+        # mkdir dist
+        # cp -R "python-nionswift/bin/Nion Swift.app" "dist/$app_name.app"
+
         # configure the environment by copying site-packages, the toolconfig.toml file, application icon,
         # and splash screen.
-        mkdir dist
-        cp -R "python-nionswift/bin/Nion Swift.app" "dist/$app_name.app"
         # strip arm64 leaving only x86_64 (for now)
         ditto "dist/$app_name.app/Contents/MacOS/Nion Swift" --arch x86_64 "dist/$app_name.app/Contents/MacOS/Nion Swift x64"
         mv "dist/$app_name.app/Contents/MacOS/Nion Swift x64" "dist/$app_name.app/Contents/MacOS/Nion Swift"
         # copy the Python framework. must go after copying the app.
         mv Python.framework "dist/$app_name.app/Contents/Frameworks"
-        mkdir -p "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.10"
+        mkdir -p "dist/$app_name.app/Contents/Resources/python-nionswift/lib/python3.10"
         # site packages need to go in the right spot.
-        cp -R python-nionswift/lib/python3.10/site-packages "dist/$app_name.app/Contents/MacOS/python-nionswift/lib/python3.10"
-        # config files for the tool.
-        cp mac_toolconfig.toml "dist/$app_name.app/Contents/MacOS/toolconfig.toml"
+        cp -R python-nionswift/lib/python3.10/site-packages "dist/$app_name.app/Contents/Resources/python-nionswift/lib/python3.10"
+        # config files for the tool. to allow codesigning, toolconfig is put into Resources.
+        cp mac_toolconfig.toml "dist/$app_name.app/Contents/Resources/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
         cp "nionswift-tool/launcher/Artwork/splash_600x400.png" "dist/$app_name.app/Contents/Resources/splash.png"
 
+        # codesign
+        echo -n "$MACOS_CERTIFICATE" | base64 —d > certificate.p12
+        echo "Create keychain"
+        security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" build.keychain
+        echo "Set default keychain"
+        security default-keychain -s build.keychain
+        echo "Unlock keychain"
+        security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" build.keychain
+        echo "Import certificate (disabled)"
+        security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+        echo "Find identity"
+        security find-identity -v
+        echo "Set key partition list (avoids dialog)"
+        security set-key-partition-list -S apple-tool:,apple: -s -k "$MACOS_KEYCHAIN_PASSWORD" build.keychain
+        echo "Code sign"
+        /usr/bin/codesign -s 6NZ75YWPJ5 "dist/$app_name.app" --deep --force --verbose
+        # /usr/bin/codesign -s - "dist/$app_name.app" --deep --force --verbose
+
         # finally, create the disk image
+        echo "Create disk image"
         hdiutil create tmp.dmg -ov -volname "$app_name Install" -fs HFS+ -srcfolder "dist/"
         hdiutil convert tmp.dmg -format UDZO -o "$product_name.dmg"
 
