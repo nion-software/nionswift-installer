@@ -161,7 +161,7 @@ jobs:
         echo "Find identity"
         security find-identity -v
         echo "Set key partition list (avoids dialog)"
-        security set-key-partition-list -S apple-tool:,apple: -s -k "$MACOS_KEYCHAIN_PASSWORD" build.keychain
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" build.keychain
         echo "Code sign"
         /usr/bin/codesign -s 6NZ75YWPJ5 "dist/$app_name.app" --deep --force --verbose
         # /usr/bin/codesign -s - "dist/$app_name.app" --deep --force --verbose
