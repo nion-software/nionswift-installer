@@ -49,7 +49,11 @@ jobs:
         MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
         MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
         MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+        MACOS_DEVELOPER_TEAM_ID: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
       run: |
+        build_from_source=true
+        do_codesign=false
+
         # the first step in the build process is to create a virtual environment to be
         # used by the installation scripts and activate it. also update pip.
         mkdir venv
@@ -64,21 +68,23 @@ jobs:
         # next, install Qt using the aqt tool. only install the required Qt modules.
         # then configure the Qt6_DIR variable (used by cmake), install numpy (used by
         # cmake). then git clone the tool source code. finally run cmake.
-        pip install aqtinstall
-        mkdir Qt
-        echo "Installing Qt $qt_version ($qt_platform)"
-        python -m aqt install-qt --outputdir Qt mac desktop 6.3.2 clang_64
-        ls Qt
-        export Qt6=`pwd`/Qt/$qt_version/$qt_platform
-        export Qt6_DIR="$Qt6/lib/cmake/Qt6"
-        # see https://bugreports.qt.io/browse/QTBUG-97615
-        export CMAKE_PREFIX_PATH="$Qt6"
-        pip install numpy
-        git clone https://github.com/nion-software/nionui-tool.git
-        pushd nionui-tool/launcher
-        cmake CMakeLists.txt
-        cmake --build . --config Release
-        popd
+        if $build_from_source; then
+          pip install aqtinstall
+          mkdir Qt
+          echo "Installing Qt $qt_version ($qt_platform)"
+          python -m aqt install-qt --outputdir Qt mac desktop 6.3.2 clang_64
+          ls Qt
+          export Qt6=`pwd`/Qt/$qt_version/$qt_platform
+          export Qt6_DIR="$Qt6/lib/cmake/Qt6"
+          # see https://bugreports.qt.io/browse/QTBUG-97615
+          export CMAKE_PREFIX_PATH="$Qt6"
+          pip install numpy
+          git clone https://github.com/nion-software/nionui-tool.git
+          pushd nionui-tool/launcher
+          cmake CMakeLists.txt
+          cmake --build . --config Release
+          popd
+        fi
 
         # now install a fresh Python from python.org. use a version from the earliest supported target OS.
         # on macOS, manually extract Python from the pkg. then run mac_fix_framework to fix dylib references.
@@ -127,11 +133,13 @@ jobs:
         # OPTIONAL: build tool from source
         # copy the application built in the last step to the distribution directory.
         rm -rf dist; mkdir -p dist/
-        cp -R "nionui-tool/launcher/build/Nion UI Launcher.app" "dist/$app_name.app"
-        mv "dist/$app_name.app/Contents/MacOS/Nion UI Launcher" "dist/$app_name.app/Contents/MacOS/Nion Swift"
-        # next two lines are disabled when building from source
-        # mkdir dist
-        # cp -R "python-nionswift/bin/Nion Swift.app" "dist/$app_name.app"
+        if $build_from_source; then
+          cp -R "nionui-tool/launcher/build/Nion UI Launcher.app" "dist/$app_name.app"
+          mv "dist/$app_name.app/Contents/MacOS/Nion UI Launcher" "dist/$app_name.app/Contents/MacOS/Nion Swift"
+        else
+          mkdir dist
+          cp -R "python-nionswift/bin/Nion Swift.app" "dist/$app_name.app"
+        fi
 
         # configure the environment by copying site-packages, the toolconfig.toml file, application icon,
         # and splash screen.
@@ -148,24 +156,27 @@ jobs:
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
         cp "nionswift-tool/launcher/Artwork/splash_600x400.png" "dist/$app_name.app/Contents/Resources/splash.png"
 
-        # codesign
-        echo -n "$MACOS_CERTIFICATE" | base64 -d > certificate.p12
-        echo "Create keychain"
-        security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" build.keychain
-        echo "Set default keychain"
-        security default-keychain -s build.keychain
-        echo "Unlock keychain"
-        security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" build.keychain
-        echo "Import certificate (disabled)"
-        security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
-        echo "Find identity"
-        security find-identity -v
-        echo "Set key partition list (avoids dialog)"
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" build.keychain
-        echo "Code sign"
-        /usr/bin/codesign -s 6NZ75YWPJ5 "dist/$app_name.app" --deep --force --verbose
-        # /usr/bin/codesign -s - "dist/$app_name.app" --deep --force --verbose
-        rm certificate.p12
+        if $do_codesign; then
+          # codesign
+          echo -n "$MACOS_CERTIFICATE" | base64 -d > certificate.p12
+          echo "Create keychain"
+          security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" build.keychain
+          echo "Set default keychain"
+          security default-keychain -s build.keychain
+          echo "Unlock keychain"
+          security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" build.keychain
+          echo "Import certificate (disabled)"
+          security import certificate.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PWD" -T /usr/bin/codesign
+          echo "Find identity"
+          security find-identity -v
+          echo "Set key partition list (avoids dialog)"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" build.keychain
+          echo "Code sign"
+          /usr/bin/codesign -s "$MACOS_DEVELOPER_TEAM_ID" "dist/$app_name.app" --deep --force --verbose
+          # self signing for testing
+          # /usr/bin/codesign -s - "dist/$app_name.app" --deep --force --verbose
+          rm certificate.p12
+        fi
 
         # finally, create the disk image
         echo "Create disk image"
