@@ -52,7 +52,7 @@ jobs:
         MACOS_DEVELOPER_TEAM_ID: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
       run: |
         build_from_source=true
-        do_codesign=false
+        do_codesign=true
 
         # the first step in the build process is to create a virtual environment to be
         # used by the installation scripts and activate it. also update pip.
@@ -136,6 +136,7 @@ jobs:
         if $build_from_source; then
           cp -R "nionui-tool/launcher/build/Nion UI Launcher.app" "dist/$app_name.app"
           mv "dist/$app_name.app/Contents/MacOS/Nion UI Launcher" "dist/$app_name.app/Contents/MacOS/Nion Swift"
+          cp "python-nionswift/bin/Nion Swift.app/Contents/Info.plist" "dist/$app_name.app/Contents/Info.plist"
         else
           mkdir dist
           cp -R "python-nionswift/bin/Nion Swift.app" "dist/$app_name.app"
