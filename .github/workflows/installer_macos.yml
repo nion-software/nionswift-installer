@@ -149,8 +149,7 @@ jobs:
         cp "nionswift-tool/launcher/Artwork/splash_600x400.png" "dist/$app_name.app/Contents/Resources/splash.png"
 
         # codesign
-        echo -n "$MACOS_CERTIFICATE" > certificate64
-        base64 —d -i certificate64 -o certificate.p12
+        echo -n "$MACOS_CERTIFICATE" | base64 -d > certificate.p12
         echo "Create keychain"
         security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" build.keychain
         echo "Set default keychain"
@@ -166,7 +165,7 @@ jobs:
         echo "Code sign"
         /usr/bin/codesign -s 6NZ75YWPJ5 "dist/$app_name.app" --deep --force --verbose
         # /usr/bin/codesign -s - "dist/$app_name.app" --deep --force --verbose
-        rm certificate64 certificate.p12
+        rm certificate.p12
 
         # finally, create the disk image
         echo "Create disk image"
