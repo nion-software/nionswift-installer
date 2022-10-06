@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         # installer is always built with a specific version of Python
-        os: [macos-10.15]
+        os: [macos-12]
         python-version: ["3.10"]
 
     env:
@@ -191,8 +191,16 @@ jobs:
         echo "Create disk image"
         hdiutil create tmp.dmg -ov -volname "$app_name Install" -fs HFS+ -srcfolder "dist/"
         hdiutil convert tmp.dmg -format UDZO -o "$product_name.dmg"
-
-    # finally, upload the artifacts of the build so they are available on the GitHub action page.
+    # notarize
+    - name: Notarize DMG
+      uses: cocoalibs/xcode-notarization-action@v1
+      with:
+        app-path: "$product_name.dmg"
+        apple-id: ${{ secrets.MACOS_DEVELOPER_APPLE_ID }}
+        password: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
+        team-id: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
+        xcode-path: /Applications/Xcode_14.0.app
+    # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product DMG
       uses: actions/upload-artifact@v2
       with:
