@@ -24,12 +24,12 @@ jobs:
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 0.16"
       product_name: NionSwift-0.16.5
-      python_version: 3.10.6
+      python_version: 3.10.7
 
       # qt_version, qt_platform specify which version of Qt to use.
       # these should be regularly updated to the latest usable version.
       # these are only used if building the tool from source.
-      qt_version: 6.3.2
+      qt_version: 6.4.0
       qt_platform: macos
 
     steps:
@@ -51,7 +51,7 @@ jobs:
         MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
         MACOS_DEVELOPER_TEAM_ID: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
       run: |
-        build_from_source=true
+        build_from_source=false
         do_codesign=true
 
         # the first step in the build process is to create a virtual environment to be
@@ -72,7 +72,7 @@ jobs:
           pip install aqtinstall
           mkdir Qt
           echo "Installing Qt $qt_version ($qt_platform)"
-          python -m aqt install-qt --outputdir Qt mac desktop 6.3.2 clang_64
+          python -m aqt install-qt --outputdir Qt mac desktop $qt_version clang_64
           ls Qt
           export Qt6=`pwd`/Qt/$qt_version/$qt_platform
           export Qt6_DIR="$Qt6/lib/cmake/Qt6"
@@ -138,7 +138,6 @@ jobs:
           mv "dist/$app_name.app/Contents/MacOS/Nion UI Launcher" "dist/$app_name.app/Contents/MacOS/Nion Swift"
           cp "python-nionswift/bin/Nion Swift.app/Contents/Info.plist" "dist/$app_name.app/Contents/Info.plist"
         else
-          mkdir dist
           cp -R "python-nionswift/bin/Nion Swift.app" "dist/$app_name.app"
         fi
 

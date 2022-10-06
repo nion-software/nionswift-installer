@@ -35,9 +35,9 @@ jobs:
       version_major: 0
       version_minor: 16
       version_patch: 5
-      qt_version: 6.3.2
+      qt_version: 6.4.0
       qt_platform: msvc2019_64
-      python_version: 3.10.6
+      python_version: 3.10.7
 
     steps:
     - uses: actions/checkout@v2
@@ -65,7 +65,8 @@ jobs:
         # cmake). then git clone the tool source code. finally run cmake.
         pip install aqtinstall
         mkdir Qt
-        python -m aqt install-qt --outputdir Qt windows desktop 6.3.2 win64_${env:qt_platform}
+        echo "Installing Qt ${env:qt_version} (${env:qt_platform})"
+        python -m aqt install-qt --outputdir Qt windows desktop ${env:qt_version} win64_${env:qt_platform}
         # see https://bugreports.qt.io/browse/QTBUG-97615
         $ENV:Qt6_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt6"
         $ENV:QT_ADDITIONAL_PACKAGES_PREFIX_PATH = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}"
