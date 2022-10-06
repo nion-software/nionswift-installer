@@ -26,6 +26,9 @@ jobs:
       product_name: NionSwift-0.16.5
       python_version: 3.10.7
 
+      # version of nionui-tool to use as basis of tool build
+      tool_source_version: 0.4.17
+
       # qt_version, qt_platform specify which version of Qt to use.
       # these should be regularly updated to the latest usable version.
       # these are only used if building the tool from source.
@@ -51,7 +54,10 @@ jobs:
         MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
         MACOS_DEVELOPER_TEAM_ID: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
       run: |
-        build_from_source=false
+        # NOTE: not building from source fails to codesign because the framework soft links aren't preserved.
+        # TODO: fix installed tool builds.
+        # for now, build from source always but use a specific source version if desired.
+        build_from_source=true
         do_codesign=true
 
         # the first step in the build process is to create a virtual environment to be
@@ -62,7 +68,7 @@ jobs:
         python -m pip install --upgrade pip
 
         # grab nionswift-tool for splash and toml files
-        git clone https://github.com/nion-software/nionswift-tool.git
+        git clone https://github.com/nion-software/nionswift-tool.git --branch $tool_source_version --single-branch
 
         # OPTIONAL: build tool from source
         # next, install Qt using the aqt tool. only install the required Qt modules.
