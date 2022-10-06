@@ -149,9 +149,8 @@ jobs:
         mv "dist/$app_name.app/Contents/MacOS/Nion Swift x64" "dist/$app_name.app/Contents/MacOS/Nion Swift"
         # copy the Python framework. must go after copying the app.
         mv Python.framework "dist/$app_name.app/Contents/Frameworks"
-        mkdir -p "dist/$app_name.app/Contents/Resources/python-nionswift/lib/python3.10"
         # site packages need to go in the right spot.
-        cp -R python-nionswift/lib/python3.10/site-packages "dist/$app_name.app/Contents/Resources/python-nionswift/lib/python3.10"
+        cp -R python-nionswift/lib/python3.10/site-packages/* "dist/$app_name.app/Contents/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages"
         # config files for the tool. to allow codesigning, toolconfig is put into Resources.
         cp mac_toolconfig.toml "dist/$app_name.app/Contents/Resources/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
@@ -173,7 +172,16 @@ jobs:
           echo "Set key partition list (avoids dialog)"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" build.keychain
           echo "Code sign"
-          /usr/bin/codesign -s "$MACOS_DEVELOPER_TEAM_ID" "dist/$app_name.app" --deep --force --verbose
+          # remove files that will not be signed and have can be regenerated
+          find "dist/$app_name.app" -name "__pycache__" -exec rm -rf {} \; -prune
+          find "dist/$app_name.app" -name "*.pyc" -exec rm -rf {} \; -prune
+          # sign files from the inside out. first ensure that dylibs are executable. then find all executable files
+          # and sign them. then sign apps within frameworks. then sign frameworks. then sign the app itself.
+          find "dist/$app_name.app" -name "*.dylib" -exec chmod +x {} \;
+          find "dist/$app_name.app" -type f -perm +111 -and -not -name "*.py" -exec /usr/bin/codesign -s "$MACOS_DEVELOPER_TEAM_ID" {} --options runtime --timestamp --deep --force --verbose \;
+          find "dist/$app_name.app/Contents/Frameworks" -name "*.app" -exec /usr/bin/codesign -s "$MACOS_DEVELOPER_TEAM_ID" {} --options runtime --timestamp --deep --force --verbose \;
+          find "dist/$app_name.app" -name "*.framework" -exec /usr/bin/codesign -s "$MACOS_DEVELOPER_TEAM_ID" {} --options runtime --timestamp --deep --force --verbose \;
+          /usr/bin/codesign -s "$MACOS_DEVELOPER_TEAM_ID" "dist/$app_name.app" --options runtime --timestamp --deep --force --verbose
           # self signing for testing
           # /usr/bin/codesign -s - "dist/$app_name.app" --deep --force --verbose
           rm certificate.p12

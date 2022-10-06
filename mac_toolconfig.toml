@@ -13,7 +13,7 @@
 [python]
 home = "../Frameworks/Python.framework/Versions/3.10"
 library_name = "lib/libpython3.10.dylib"
-paths = ["lib/python310.zip", "lib/python3.10", "lib/python3.10/lib-dynload", "../../../../Resources/python-nionswift/lib/python3.10/site-packages"]
+paths = ["lib/python310.zip", "lib/python3.10", "lib/python3.10/lib-dynload", "lib/python3.10/site-packages"]
 
 [app]
 identifier = "nionui_app.nionswift"
