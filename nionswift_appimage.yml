@@ -15,7 +15,7 @@ AppDir:
     id: com.nion.nionswift
     name: NionSwift
     icon: NionSwift_Logo
-    version: 0.16.5
+    version: 0.16.6
     exec: usr/bin/NionSwiftLauncher/NionSwiftLauncher
 
   apt:

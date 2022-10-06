@@ -23,7 +23,7 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 0.16"
-      product_name: NionSwift-0.16.5
+      product_name: NionSwift-0.16.6
       python_version: 3.10.7
 
       # version of nionui-tool to use as basis of tool build
