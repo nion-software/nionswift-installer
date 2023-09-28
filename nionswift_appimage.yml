@@ -15,8 +15,8 @@ AppDir:
     id: com.nion.nionswift
     name: NionSwift
     icon: NionSwift_Logo
-    version: 0.16.8
-    exec: usr/bin/NionSwiftLauncher/NionSwiftLauncher
+    version: 16.9.0
+    exec: usr/local/bin/NionSwiftLauncher/NionSwiftLauncher
 
   apt:
     arch: amd64
@@ -28,10 +28,10 @@ AppDir:
         key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xba6932366a755776'
 
     include:
-      - python3.10
-      - python3.10-dev
-      - python3.10-venv
-      - python3.10-distutils
+      - python3.11
+      - python3.11-dev
+      - python3.11-venv
+      - python3.11-distutils
 
     exclude:
       # from https://github.com/probonopd/linuxdeployqt/blob/master/tools/linuxdeployqt/excludelist.h
@@ -96,9 +96,10 @@ AppDir:
   after_bundle: |
     APPDIR=./AppDir
     wget https://bootstrap.pypa.io/get-pip.py
-    ${APPDIR}/usr/bin/python3.10 get-pip.py
-    ${APPDIR}/usr/bin/python3.10 -m pip install nionswift nionswift-usim nionswift-tool
-    cp linux_toolconfig.toml ${APPDIR}/usr/bin/NionSwiftLauncher/toolconfig.toml
+    ${APPDIR}/usr/bin/python3.11 get-pip.py
+    ${APPDIR}/usr/bin/python3.11 -m pip install nionswift nionswift-usim nionswift-tool
+    ls -Rl ${APPDIR}
+    cp linux_toolconfig.toml ${APPDIR}/usr/local/bin/NionSwiftLauncher/toolconfig.toml
 
   after_runtime: |
     APPDIR=./AppDir
