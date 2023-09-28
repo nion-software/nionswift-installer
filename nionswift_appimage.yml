@@ -15,8 +15,8 @@ AppDir:
     id: com.nion.nionswift
     name: NionSwift
     icon: NionSwift_Logo
-    version: 0.16.8
-    exec: usr/bin/NionSwiftLauncher/NionSwiftLauncher
+    version: 16.9.0
+    exec: usr/local/bin/NionSwiftLauncher/NionSwiftLauncher
 
   apt:
     arch: amd64
@@ -28,66 +28,65 @@ AppDir:
         key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xba6932366a755776'
 
     include:
-      - python3.10
-      - python3.10-dev
-      - python3.10-venv
-      - python3.10-distutils
+      - python3.11
+      - python3.11-dev
+      - python3.11-venv
+      - python3.11-distutils
+      - libxcb-sync1
+      - libxcb-cursor0
 
     exclude:
-      # from https://github.com/probonopd/linuxdeployqt/blob/master/tools/linuxdeployqt/excludelist.h
-      - ld-linux.so.2
+      # from https://github.com/AppImageCommunity/pkg2appimage/blob/master/excludelist
+      # sorted
       - ld-linux-x86-64.so.2
+      - ld-linux.so.2
+      - libBrokenLocale.so.1
+      - libEGL.so.1
+      - libGL.so.1
+      - libGLX.so.0
+      - libGLdispatch.so.0
+      - libICE.so.6
+      - libOpenGL.so.0
+      - libSM.so.6
+      - libX11-xcb.so.1
+      - libX11.so.6
       - libanl.so.1
       - libasound.so.2
-      - libBrokenLocale.so.1
+      - libc.so.6
       - libcidn.so.1
       - libcom_err.so.2
-      - libc.so.6
       - libdl.so.2
       - libdrm.so.2
-      - libEGL.so.1
       - libexpat.so.1
       - libfontconfig.so.1
       - libfreetype.so.6
       - libfribidi.so.0
       - libgbm.so.1
       - libgcc_s.so.1
-      - libgdk_pixbuf-2.0.so.0
-      - libgio-2.0.so.0
       - libglapi.so.0
-      - libGLdispatch.so.0
-      - libglib-2.0.so.0
-      - libGL.so.1
-      - libGLX.so.0
-      - libgobject-2.0.so.0
+      - libgmp.so.10
+      - libgpg-error.so.0
       - libgpg-error.so.0
       - libharfbuzz.so.0
-      - libICE.so.6
       - libjack.so.0
       - libm.so.6
       - libmvec.so.1
       - libnss_compat.so.2
-      - libnss_db.so.2
       - libnss_dns.so.2
       - libnss_files.so.2
       - libnss_hesiod.so.2
-      - libnss_nisplus.so.2
       - libnss_nis.so.2
+      - libnss_nisplus.so.2
       - libp11-kit.so.0
-      - libpango-1.0.so.0
-      - libpangocairo-1.0.so.0
-      - libpangoft2-1.0.so.0
       - libpthread.so.0
       - libresolv.so.2
       - librt.so.1
-      - libSM.so.6
       - libstdc++.so.6
       - libthai.so.0
       - libthread_db.so.1
       - libusb-1.0.so.0
       - libutil.so.1
       - libuuid.so.1
-      - libX11.so.6
       - libxcb-dri2.so.0
       - libxcb-dri3.so.0
       - libxcb.so.1
@@ -96,9 +95,10 @@ AppDir:
   after_bundle: |
     APPDIR=./AppDir
     wget https://bootstrap.pypa.io/get-pip.py
-    ${APPDIR}/usr/bin/python3.10 get-pip.py
-    ${APPDIR}/usr/bin/python3.10 -m pip install nionswift nionswift-usim nionswift-tool
-    cp linux_toolconfig.toml ${APPDIR}/usr/bin/NionSwiftLauncher/toolconfig.toml
+    ${APPDIR}/usr/bin/python3.11 get-pip.py
+    ${APPDIR}/usr/bin/python3.11 -m pip install nionswift nionswift-usim nionswift-tool
+    ls -Rl ${APPDIR}
+    cp linux_toolconfig.toml ${APPDIR}/usr/local/bin/NionSwiftLauncher/toolconfig.toml
 
   after_runtime: |
     APPDIR=./AppDir

@@ -14,7 +14,7 @@ jobs:
       matrix:
         # installer is always built with a specific version of Python
         os: [windows-2019]
-        python-version: ["3.10"]
+        python-version: ["3.11"]
 
     env:
       # define environment and configuration variables here.
@@ -29,22 +29,22 @@ jobs:
       # these should be regularly updated to the latest usable version.
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
-      product_name: NionSwift-0.16
-      product_identifier: Nion_Swift_0_16
+      product_name: NionSwift-16
+      product_identifier: Nion_Swift_16_9
       version_overall: 16
-      version_major: 0
-      version_minor: 16
-      version_patch: 8
-      qt_version: 6.4.1
+      version_major: 16
+      version_minor: 9
+      version_patch: 0
+      qt_version: 6.5.3
       qt_platform: msvc2019_64
-      python_version: 3.10.9
+      python_version: 3.11.5
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
@@ -87,8 +87,8 @@ jobs:
         $exePath = Join-Path (Get-Location).path "$PYTHON_FILE.exe"
         (New-Object Net.WebClient).DownloadFile("https://www.python.org/ftp/python/${env:python_version}/$PYTHON_FILE.exe", $exePath)
         cmd /c start /wait "$PYTHON_FILE.exe" /quiet /uninstall
-        $PYTHON_310_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
-        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_310_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
+        $PYTHON_311_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
+        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_311_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
         & ".\$PYTHON_FILE\python.exe" -m pip install wheel
         & ".\$PYTHON_FILE\python.exe" -m venv python-nionswift
         .\python-nionswift\Scripts\activate
@@ -125,7 +125,7 @@ jobs:
         Copy-Item .\win_toolconfig.toml -Destination ".\dist\${env:product_identifier}\toolconfig.toml"
         Copy-Item .\nionswift-tool\launcher\Artwork\splash_600x400.png -Destination ".\dist\${env:product_identifier}\splash.png"
         Move-Item -Force ".\dist\${env:product_identifier}\NionSwiftLauncher.exe" ".\dist\${env:product_identifier}\${env:product_identifier}.exe"
-        Copy-Item -Recurse -Path "$PYTHON_310_DIR\*" -Destination ".\dist\${env:product_identifier}"
+        Copy-Item -Recurse -Path "$PYTHON_311_DIR\*" -Destination ".\dist\${env:product_identifier}"
         Copy-Item -Recurse -Path .\python-nionswift\Lib\site-packages -Destination ".\dist\${env:product_identifier}\python-nionswift\Lib\site-packages"
 
         # use CMake + wix extensions to build an installer.
@@ -136,10 +136,9 @@ jobs:
 
         Compress-Archive ".\dist\${env:product_identifier}" "${{env.product_name}}.zip"
 
-    # finally, upload the artifacts of the build so they are available on the GitHub action page.
+    # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product Zip
-      # see https://github.com/actions/upload-artifact/issues/281 to upgrade past 2.2
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ env.product_name }}.zip
         path: ${{ env.product_name }}.zip
@@ -147,4 +146,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.product_name }}.msi
-        path: wix\${{ env.product_name }}.msi
+        path: wix\${{ env.product_name }}.${{ env.version_minor }}.msi
