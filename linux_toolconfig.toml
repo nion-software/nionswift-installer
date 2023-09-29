@@ -11,7 +11,7 @@
 #   identifier: the package identifier of the application. in this case, Nion Swift
 
 [python]
-home = "../../../usr"
+home = "../../../../usr"
 library_name = "lib/python3.11/config-3.11-x86_64-linux-gnu/libpython3.11.so"
 # note: 'local' prefix on dist-packages, which is different from the command line version.
 paths = ["lib/python311.zip", "lib/python3.11", "lib/python3.11/lib-dynload", "lib/python3.11/site-packages", "lib/python3/dist-packages", "local/lib/python3.11/dist-packages"]
