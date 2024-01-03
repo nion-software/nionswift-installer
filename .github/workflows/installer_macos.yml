@@ -216,7 +216,7 @@ jobs:
         apple-id: ${{ secrets.MACOS_DEVELOPER_APPLE_ID }}
         password: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
         team-id: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
-        xcode-path: /Applications/Xcode_15.1.app
+        xcode-path: /Applications/Xcode.app
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product DMG
       uses: actions/upload-artifact@v3
