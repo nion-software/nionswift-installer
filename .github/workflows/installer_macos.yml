@@ -7,6 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
+  name: "Build macOS Installer"
   build:
 
     runs-on: ${{ matrix.os }}
@@ -199,9 +200,10 @@ jobs:
         fi
 
         # finally, create the disk image
-        echo "Create disk image"
-        hdiutil create tmp.dmg -ov -volname "$app_name Install (${{ matrix.architecture }})" -fs HFS+ -srcfolder "dist/"
-        hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
+        echo "Create disk image $app_name Install (${{ matrix.architecture }})"
+        sleep 5
+        hdiutil create tmp.dmg -verbose -nospotlight -volname "$app_name Install (${{ matrix.architecture }})" -fs HFS+ -srcfolder "dist/"
+        hdiutil convert tmp.dmg -verbose -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
     # notarize
     - name: Notarize DMG
       uses: cocoalibs/xcode-notarization-action@v1
