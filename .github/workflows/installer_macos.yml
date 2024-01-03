@@ -15,6 +15,11 @@ jobs:
         # installer is always built with a specific version of Python
         os: [macos-12]
         python-version: ["3.12"]
+        architecture: [x86_64]
+        include:
+            - os: macos-latest-xlarge
+              python-version: "3.12"
+              architecture: arm64
 
     env:
       # define environment and configuration variables here.
@@ -150,9 +155,9 @@ jobs:
 
         # configure the environment by copying site-packages, the toolconfig.toml file, application icon,
         # and splash screen.
-        # strip arm64 leaving only x86_64 (for now)
-        ditto "dist/$app_name.app/Contents/MacOS/Nion Swift" --arch x86_64 "dist/$app_name.app/Contents/MacOS/Nion Swift x64"
-        mv "dist/$app_name.app/Contents/MacOS/Nion Swift x64" "dist/$app_name.app/Contents/MacOS/Nion Swift"
+        # strip arm64 leaving only native (for now)
+        ditto "dist/$app_name.app/Contents/MacOS/Nion Swift" --arch ${{ matrix.architecture }} "dist/$app_name.app/Contents/MacOS/Nion Swift ${{ matrix.architecture }}"
+        mv "dist/$app_name.app/Contents/MacOS/Nion Swift ${{ matrix.architecture }}" "dist/$app_name.app/Contents/MacOS/Nion Swift"
         # copy the Python framework. must go after copying the app.
         mv Python.framework "dist/$app_name.app/Contents/Frameworks"
         # site packages need to go in the right spot.
@@ -195,13 +200,13 @@ jobs:
 
         # finally, create the disk image
         echo "Create disk image"
-        hdiutil create tmp.dmg -ov -volname "$app_name Install" -fs HFS+ -srcfolder "dist/"
-        hdiutil convert tmp.dmg -format UDZO -o "$product_name.dmg"
+        hdiutil create tmp.dmg -ov -volname "$app_name Install (${{ matrix.architecture }})" -fs HFS+ -srcfolder "dist/"
+        hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
     # notarize
     - name: Notarize DMG
       uses: cocoalibs/xcode-notarization-action@v1
       with:
-        app-path: "$product_name.dmg"
+        app-path: "$product_name-${{ matrix.architecture }}.dmg"
         apple-id: ${{ secrets.MACOS_DEVELOPER_APPLE_ID }}
         password: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
         team-id: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
@@ -210,5 +215,5 @@ jobs:
     - name: Upload Product DMG
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.product_name }}.dmg
-        path: ${{ env.product_name }}.dmg
+        name: ${{ env.product_name }}-${{ matrix.architecture }}.dmg
+        path: ${{ env.product_name }}-${{ matrix.architecture }}.dmg
