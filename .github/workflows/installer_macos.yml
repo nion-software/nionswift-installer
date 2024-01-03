@@ -1,5 +1,5 @@
 name: Build
-run-name: Build macOS Installers ${{ github.event }} ABC
+run-name: Build macOS Installers ${{ github.event.title }} ABC
 
 on:
   push:
@@ -201,8 +201,7 @@ jobs:
 
         # finally, create the disk image
         echo "Create disk image $app_name Install (${{ matrix.architecture }})"
-        sleep 5
-        hdiutil create tmp.dmg -nospotlight -volname "$app_name Install ${{ matrix.architecture }}" -fs HFS+ -srcfolder "dist/"
+        hdiutil create tmp.dmg -nospotlight -anyowners -volname "$app_name Install ${{ matrix.architecture }}" -fs HFS+ -srcfolder "dist/"
         echo "Created"
         hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
         echo "Converted"
