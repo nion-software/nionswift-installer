@@ -7,7 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  name: "Build macOS Installer"
   build:
 
     runs-on: ${{ matrix.os }}
