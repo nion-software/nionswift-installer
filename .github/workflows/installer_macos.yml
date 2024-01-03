@@ -1,5 +1,5 @@
 name: Build
-run-name: Build macOS Installers ${{ github.event.pull_request.title }}
+run-name: macOS ${{ github.event.pull_request.title }} ${{ github.event.push.head_commit.message }}
 # see https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request
 
 on:
@@ -203,10 +203,7 @@ jobs:
         # finally, create the disk image
         ls -l /Applications
         echo "Create disk image $app_name Install (${{ matrix.architecture }})"
-        for t in $(seq 1 20); do # FIXME: macOS has random hdiutil errors because of some protection mechanisms, just retry few times https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
-          echo "Create disk image $app_name Install (${{ matrix.architecture }}) [$t]"
-          hdiutil create tmp.dmg -verbose -ov -volname "$app_name Install ${{ matrix.architecture }}" -fs APFS -srcfolder "dist/"
-        done
+        hdiutil create tmp.dmg -verbose -ov -volname "$app_name Install ${{ matrix.architecture }}" -fs APFS -srcfolder "dist/"
         echo "Created"
         hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
         echo "Converted"
