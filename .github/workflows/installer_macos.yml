@@ -1,5 +1,5 @@
 name: Build
-run-name: Build macOS Installers ${{ github.event.pull_request }} AA ${{ github.event.push }} BB
+run-name: Build macOS Installers ${{ github.event.pull_request.commits }} AA ${{ github.event.pull_request.commits[0] }} BB
 
 on:
   push:
