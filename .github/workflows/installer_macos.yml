@@ -1,4 +1,6 @@
 name: Build
+run-name: macOS ${{ github.event.pull_request.title }} ${{ github.event.push.head_commit.message }}
+# see https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request
 
 on:
   push:
@@ -14,7 +16,12 @@ jobs:
       matrix:
         # installer is always built with a specific version of Python
         os: [macos-12]
-        python-version: ["3.11"]
+        python-version: ["3.12"]
+        architecture: [x86_64]
+        include:
+            - os: macos-latest-xlarge
+              python-version: "3.12"
+              architecture: arm64
 
     env:
       # define environment and configuration variables here.
@@ -23,20 +30,20 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
-      product_name: NionSwift-16.9.0
-      python_version: 3.11.5
+      product_name: NionSwift-16.10.0
+      python_version: 3.12.1
 
       # version of nionui-tool to use as basis of tool build
-      tool_source_version: 0.4.20
+      tool_source_version: 0.4.22
 
       # qt_version, qt_platform specify which version of Qt to use.
       # these should be regularly updated to the latest usable version.
       # these are only used if building the tool from source.
-      qt_version: 6.5.3
+      qt_version: 6.6.1
       qt_platform: macos
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
@@ -109,7 +116,7 @@ jobs:
         tar -zxf python-$python_version-macos11/Python_Framework.pkg/Payload -C Python.framework
         echo "Running fix"
         python mac_fix_framework.py Python.framework/
-        python3.11 -m venv python-nionswift
+        python3.12 -m venv python-nionswift
         source python-nionswift/bin/activate
 
         # install latest version of nionswift (UNUSED EXCEPT FOR DEBUGGING)
@@ -150,13 +157,13 @@ jobs:
 
         # configure the environment by copying site-packages, the toolconfig.toml file, application icon,
         # and splash screen.
-        # strip arm64 leaving only x86_64 (for now)
-        ditto "dist/$app_name.app/Contents/MacOS/Nion Swift" --arch x86_64 "dist/$app_name.app/Contents/MacOS/Nion Swift x64"
-        mv "dist/$app_name.app/Contents/MacOS/Nion Swift x64" "dist/$app_name.app/Contents/MacOS/Nion Swift"
+        # strip arm64 leaving only native (for now)
+        ditto "dist/$app_name.app/Contents/MacOS/Nion Swift" --arch ${{ matrix.architecture }} "dist/$app_name.app/Contents/MacOS/Nion Swift ${{ matrix.architecture }}"
+        mv "dist/$app_name.app/Contents/MacOS/Nion Swift ${{ matrix.architecture }}" "dist/$app_name.app/Contents/MacOS/Nion Swift"
         # copy the Python framework. must go after copying the app.
         mv Python.framework "dist/$app_name.app/Contents/Frameworks"
         # site packages need to go in the right spot.
-        cp -R python-nionswift/lib/python3.11/site-packages/* "dist/$app_name.app/Contents/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages"
+        cp -R python-nionswift/lib/python3.12/site-packages/* "dist/$app_name.app/Contents/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages"
         # config files for the tool. to allow codesigning, toolconfig is put into Resources.
         cp mac_toolconfig.toml "dist/$app_name.app/Contents/Resources/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
@@ -194,21 +201,21 @@ jobs:
         fi
 
         # finally, create the disk image
-        echo "Create disk image"
-        hdiutil create tmp.dmg -ov -volname "$app_name Install" -fs HFS+ -srcfolder "dist/"
-        hdiutil convert tmp.dmg -format UDZO -o "$product_name.dmg"
+        echo "Create disk image ${{ matrix.architecture }}"
+        hdiutil create tmp.dmg -ov -volname "$app_name Install ${{ matrix.architecture }}" -fs APFS -srcfolder "dist/"
+        hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
     # notarize
     - name: Notarize DMG
       uses: cocoalibs/xcode-notarization-action@v1
       with:
-        app-path: "$product_name.dmg"
+        app-path: "$product_name-${{ matrix.architecture }}.dmg"
         apple-id: ${{ secrets.MACOS_DEVELOPER_APPLE_ID }}
         password: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
         team-id: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
-        xcode-path: /Applications/Xcode_14.0.app
+        xcode-path: /Applications/Xcode.app
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product DMG
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.product_name }}.dmg
-        path: ${{ env.product_name }}.dmg
+        name: ${{ env.product_name }}-${{ matrix.architecture }}.dmg
+        path: ${{ env.product_name }}-${{ matrix.architecture }}.dmg
