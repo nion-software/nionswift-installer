@@ -1,5 +1,5 @@
 name: Build
-run-name: Build macOS Installers ${{ github.event.pull_request.commits }} AA ${{ github.event.pull_request.commits[0] }} BB
+run-name: Build macOS Installers ${{ github.event.pull_request.commits }} AA ${{ github.event.pull_request.head.label }} BB
 
 on:
   push:
@@ -200,12 +200,12 @@ jobs:
         fi
 
         # finally, create the disk image
-        echo "Create disk image $app_name Install (${{ matrix.architecture }})"
-        hdiutil create tmp.dmg -nospotlight -anyowners -volname "$app_name Install ${{ matrix.architecture }}" -fs HFS+ -srcfolder "dist/"
-        echo "Created"
-        hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
-        echo "Converted"
         ls -l /Applications
+        echo "Create disk image $app_name Install (${{ matrix.architecture }})"
+        sudo hdiutil create tmp.dmg -nospotlight -anyowners -volname "$app_name Install ${{ matrix.architecture }}" -fs HFS+ -srcfolder "dist/"
+        echo "Created"
+        sudo hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
+        echo "Converted"
     # notarize
     - name: Notarize DMG
       uses: cocoalibs/xcode-notarization-action@v1
