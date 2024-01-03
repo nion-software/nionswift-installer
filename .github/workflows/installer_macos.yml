@@ -14,7 +14,7 @@ jobs:
       matrix:
         # installer is always built with a specific version of Python
         os: [macos-12]
-        python-version: ["3.11"]
+        python-version: ["3.12"]
 
     env:
       # define environment and configuration variables here.
@@ -23,20 +23,20 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
-      product_name: NionSwift-16.9.0
-      python_version: 3.11.5
+      product_name: NionSwift-16.10.0
+      python_version: 3.12.15
 
       # version of nionui-tool to use as basis of tool build
-      tool_source_version: 0.4.20
+      tool_source_version: 0.4.22
 
       # qt_version, qt_platform specify which version of Qt to use.
       # these should be regularly updated to the latest usable version.
       # these are only used if building the tool from source.
-      qt_version: 6.5.3
+      qt_version: 6.6.1
       qt_platform: macos
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
@@ -109,7 +109,7 @@ jobs:
         tar -zxf python-$python_version-macos11/Python_Framework.pkg/Payload -C Python.framework
         echo "Running fix"
         python mac_fix_framework.py Python.framework/
-        python3.11 -m venv python-nionswift
+        python3.12 -m venv python-nionswift
         source python-nionswift/bin/activate
 
         # install latest version of nionswift (UNUSED EXCEPT FOR DEBUGGING)
@@ -156,7 +156,7 @@ jobs:
         # copy the Python framework. must go after copying the app.
         mv Python.framework "dist/$app_name.app/Contents/Frameworks"
         # site packages need to go in the right spot.
-        cp -R python-nionswift/lib/python3.11/site-packages/* "dist/$app_name.app/Contents/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages"
+        cp -R python-nionswift/lib/python3.12/site-packages/* "dist/$app_name.app/Contents/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages"
         # config files for the tool. to allow codesigning, toolconfig is put into Resources.
         cp mac_toolconfig.toml "dist/$app_name.app/Contents/Resources/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"

@@ -14,7 +14,7 @@ jobs:
       matrix:
         # installer is always built with a specific version of Python
         os: [ubuntu-20.04]
-        python-version: ["3.11"]
+        python-version: ["3.12"]
 
     env:
       # define environment and configuration variables here.
@@ -23,7 +23,7 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
-      product_name: NionSwift-16.9.0
+      product_name: NionSwift-16.10.0
       platform: x86_64
 
     steps:
