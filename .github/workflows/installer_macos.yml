@@ -29,7 +29,7 @@ jobs:
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
       product_name: NionSwift-16.10.0
-      python_version: 3.12.15
+      python_version: 3.12.1
 
       # version of nionui-tool to use as basis of tool build
       tool_source_version: 0.4.22
