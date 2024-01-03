@@ -203,6 +203,7 @@ jobs:
         sleep 5
         hdiutil create tmp.dmg -verbose -nospotlight -volname "$app_name Install (${{ matrix.architecture }})" -fs HFS+ -srcfolder "dist/"
         hdiutil convert tmp.dmg -verbose -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
+        ls -l /Applications
     # notarize
     - name: Notarize DMG
       uses: cocoalibs/xcode-notarization-action@v1
@@ -211,7 +212,7 @@ jobs:
         apple-id: ${{ secrets.MACOS_DEVELOPER_APPLE_ID }}
         password: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
         team-id: ${{ secrets.MACOS_DEVELOPER_TEAM_ID }}
-        xcode-path: /Applications/Xcode_14.0.app
+        xcode-path: /Applications/Xcode_15.1.app
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product DMG
       uses: actions/upload-artifact@v3
