@@ -1,5 +1,6 @@
 name: Build
-run-name: Build macOS Installers ${{ github.event.pull_request.title }} AA ${{ github.event.pull_request.head.label }} BB
+run-name: Build macOS Installers ${{ github.event.pull_request.title }}
+# see https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request
 
 on:
   push:
@@ -202,9 +203,10 @@ jobs:
         # finally, create the disk image
         ls -l /Applications
         echo "Create disk image $app_name Install (${{ matrix.architecture }})"
-        sudo hdiutil create tmp.dmg -nospotlight -anyowners -volname "$app_name Install ${{ matrix.architecture }}" -fs HFS+ -srcfolder "dist/"
+        sleep 60
+        hdiutil create tmp.dmg -nospotlight -anyowners -volname "$app_name Install ${{ matrix.architecture }}" -fs HFS+ -srcfolder "dist/"
         echo "Created"
-        sudo hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
+        hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
         echo "Converted"
     # notarize
     - name: Notarize DMG
