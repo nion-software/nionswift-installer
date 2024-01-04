@@ -206,8 +206,8 @@ jobs:
         hdiutil convert tmp.dmg -format UDZO -o "$product_name-${{ matrix.architecture }}.dmg"
         
         # notarize and staple
-        xcrun notarytool store-credentials notary --apple-id "${{ secrets.MACOS_DEVELOPER_APPLE_ID }}" --password "${{ secrets.MACOS_NOTARIZATION_PASSWORD }}" --team-id "${{ secrets.MACOS_DEVELOPER_TEAM_ID }}" --keychain build.keychain
-        xcrun notarytool submit "$product_name-${{ matrix.architecture }}.dmg" --keychain-profile n otary --keychain build.keychain --wait
+        xcrun notarytool store-credentials notary --apple-id "${{ secrets.MACOS_DEVELOPER_APPLE_ID }}" --password "${{ secrets.MACOS_NOTARIZATION_PASSWORD }}" --team-id "${{ secrets.MACOS_DEVELOPER_TEAM_ID }}"
+        xcrun notarytool submit "$product_name-${{ matrix.architecture }}.dmg" --keychain-profile notary --wait
         xcrun stapler staple "$product_name-${{ matrix.architecture }}.dmg"
         security delete-keychain build.keychain
     # notarize
