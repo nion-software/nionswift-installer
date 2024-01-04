@@ -1,5 +1,5 @@
 name: Build
-run-name: linux ${{ github.event.pull_request.title }} ${{ github.event.push.head_commit.message }}
+run-name: linux ${{ github.event.pull_request.title }} ${{ github.event.head_commit.message }}
 # see https://docs.github.com/en/webhooks/webhook-events-and-payloads#pull_request
 
 on:

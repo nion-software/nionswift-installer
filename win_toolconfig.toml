@@ -12,7 +12,7 @@
 
 [python]
 home = "."
-library_name = "python311.dll"
+library_name = "python312.dll"
 paths = ["lib", "DLLS", "python-nionswift/lib/site-packages"]
 
 [app]
