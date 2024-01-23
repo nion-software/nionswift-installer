@@ -74,7 +74,7 @@ jobs:
         $ENV:Qt6_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt6"
         $ENV:QT_ADDITIONAL_PACKAGES_PREFIX_PATH = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}"
         pip install numpy
-        git clone https://github.com/nion-software/nionswift-tool.git --branch $tool_source_version --single-branch
+        git clone https://github.com/nion-software/nionswift-tool.git --branch ${env:tool_source_version} --single-branch
         pushd nionswift-tool/launcher
         $PYTHON_EXEC = python -c "import sys; print(sys.executable, end='')"
         cmake CMakeLists.txt -DPython3_EXECUTABLE="$PYTHON_EXEC" -DUSE_CONSOLE=OFF
