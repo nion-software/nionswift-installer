@@ -19,7 +19,7 @@ jobs:
         python-version: ["3.12"]
         architecture: [x86_64]
         include:
-            - os: macos-latest-xlarge
+            - os: macos-14
               python-version: "3.12"
               architecture: arm64
 
