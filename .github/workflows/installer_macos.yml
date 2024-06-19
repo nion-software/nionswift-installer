@@ -30,16 +30,16 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
-      product_name: NionSwift-16.10.1
-      python_version: 3.12.1
+      product_name: NionSwift-16.11.0
+      python_version: 3.12.4
 
       # version of nionui-tool to use as basis of tool build
-      tool_source_version: 0.4.23
+      tool_source_version: 0.4.24
 
       # qt_version, qt_platform specify which version of Qt to use.
       # these should be regularly updated to the latest usable version.
       # these are only used if building the tool from source.
-      qt_version: 6.6.1
+      qt_version: 6.7.2
       qt_platform: macos
 
     steps:
@@ -47,7 +47,7 @@ jobs:
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
@@ -215,7 +215,7 @@ jobs:
         xcode-path: /Applications/Xcode.app
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product DMG
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.product_name }}-${{ matrix.architecture }}.dmg
         path: ${{ env.product_name }}-${{ matrix.architecture }}.dmg

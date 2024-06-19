@@ -32,22 +32,22 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       product_name: NionSwift-16
-      product_identifier: Nion_Swift_16_10
+      product_identifier: Nion_Swift_16_11
       version_overall: 16
       version_major: 16
-      version_minor: 10
-      version_patch: 1
-      qt_version: 6.6.1
+      version_minor: 11
+      version_patch: 0
+      qt_version: 6.7.2
       qt_platform: msvc2019_64
-      python_version: 3.12.1
-      tool_source_version: 0.4.23
+      python_version: 3.12.4
+      tool_source_version: 0.4.24
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
@@ -141,7 +141,7 @@ jobs:
 
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product Zip
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.product_name }}.zip
         path: ${{ env.product_name }}.zip
