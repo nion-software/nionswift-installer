@@ -187,6 +187,8 @@ jobs:
           # remove files that will not be signed and have can be regenerated
           find "dist/$app_name.app" -name "__pycache__" -exec rm -rf {} \; -prune
           find "dist/$app_name.app" -name "*.pyc" -exec rm -rf {} \; -prune
+          # these files started appearing in Python 3.13; remove them.
+          find "dist/$app_name.app" -name "._*" -exec rm {} \;
           # sign files from the inside out. first ensure that dylibs are executable. then find all executable files
           # and sign them. then sign apps within frameworks. then sign frameworks. then sign the app itself.
           find "dist/$app_name.app" -name "*.dylib" -exec chmod +x {} \;

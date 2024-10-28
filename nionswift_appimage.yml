@@ -31,7 +31,6 @@ AppDir:
       - python3.13
       - python3.13-dev
       - python3.13-venv
-      - python3.13-distutils
       - libxcb-sync1
       - libxcb-cursor0
 
