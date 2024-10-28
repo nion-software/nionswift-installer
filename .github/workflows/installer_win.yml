@@ -16,7 +16,7 @@ jobs:
       matrix:
         # installer is always built with a specific version of Python
         os: [windows-2019]
-        python-version: ["3.12"]
+        python-version: ["3.13"]
 
     env:
       # define environment and configuration variables here.
@@ -32,16 +32,15 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       product_name: NionSwift-16
-      product_identifier: Nion_Swift_16_11
+      product_identifier: Nion_Swift_16_12
       version_overall: 16
       version_major: 16
-      version_minor: 11
+      version_minor: 12
       version_patch: 0
-      qt_version: 6.7.2
-      qt_platform: msvc2019_64
-      python_version: 3.12.4
-      numpy_version: 1.26.4
-      tool_source_version: 0.4.24
+      qt_version: 6.8.0
+      qt_platform: msvc2022_64
+      python_version: 3.13.0
+      tool_source_version: 5.0.0
 
     steps:
     - uses: actions/checkout@v4
@@ -74,8 +73,6 @@ jobs:
         # see https://bugreports.qt.io/browse/QTBUG-97615
         $ENV:Qt6_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt6"
         $ENV:QT_ADDITIONAL_PACKAGES_PREFIX_PATH = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}"
-        pip install numpy==${env:numpy_version}
-        pip install numpy
         git clone https://github.com/nion-software/nionswift-tool.git --branch ${env:tool_source_version} --single-branch
         pushd nionswift-tool/launcher
         $PYTHON_EXEC = python -c "import sys; print(sys.executable, end='')"
@@ -92,8 +89,8 @@ jobs:
         $exePath = Join-Path (Get-Location).path "$PYTHON_FILE.exe"
         (New-Object Net.WebClient).DownloadFile("https://www.python.org/ftp/python/${env:python_version}/$PYTHON_FILE.exe", $exePath)
         cmd /c start /wait "$PYTHON_FILE.exe" /quiet /uninstall
-        $PYTHON_312_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
-        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_312_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
+        $PYTHON_DIR = Join-Path (Get-Location).path "$PYTHON_FILE"
+        cmd /c start /wait "$PYTHON_FILE.exe" /quiet TargetDir=$PYTHON_DIR AssociateFiles=0 Shortcuts=0 Include_doc=0 Include_dev=1 Include_launcher=0 InstallLauncherAllUsers=0 Include_tcltk=1 Include_test=0 Include_tools=0
         & ".\$PYTHON_FILE\python.exe" -m pip install wheel
         & ".\$PYTHON_FILE\python.exe" -m venv python-nionswift
         .\python-nionswift\Scripts\activate
@@ -130,7 +127,7 @@ jobs:
         Copy-Item .\win_toolconfig.toml -Destination ".\dist\${env:product_identifier}\toolconfig.toml"
         Copy-Item .\nionswift-tool\launcher\Artwork\splash_600x400.png -Destination ".\dist\${env:product_identifier}\splash.png"
         Move-Item -Force ".\dist\${env:product_identifier}\NionSwiftLauncher.exe" ".\dist\${env:product_identifier}\${env:product_identifier}.exe"
-        Copy-Item -Recurse -Path "$PYTHON_312_DIR\*" -Destination ".\dist\${env:product_identifier}"
+        Copy-Item -Recurse -Path "$PYTHON_DIR\*" -Destination ".\dist\${env:product_identifier}"
         Copy-Item -Recurse -Path .\python-nionswift\Lib\site-packages -Destination ".\dist\${env:product_identifier}\python-nionswift\Lib\site-packages"
 
         # use CMake + wix extensions to build an installer.
