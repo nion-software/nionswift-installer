@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # installer is always built with a specific version of Python
-        os: [windows-2019]
+        os: [windows-2022]
         python-version: ["3.13"]
 
     env:
@@ -32,15 +32,15 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       product_name: NionSwift-16
-      product_identifier: Nion_Swift_16_12
+      product_identifier: Nion_Swift_16_13
       version_overall: 16
       version_major: 16
-      version_minor: 12
+      version_minor: 13
       version_patch: 0
-      qt_version: 6.8.0
+      qt_version: 6.8.1
       qt_platform: msvc2022_64
-      python_version: 3.13.0
-      tool_source_version: 5.0.0
+      python_version: 3.13.1
+      tool_source_version: 5.1.0
 
     steps:
     - uses: actions/checkout@v4
