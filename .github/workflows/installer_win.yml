@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # installer is always built with a specific version of Python
-        os: [windows-2019]
+        os: [windows-2022]
         python-version: ["3.13"]
 
     env:
