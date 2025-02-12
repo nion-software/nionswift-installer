@@ -94,8 +94,11 @@ jobs:
           git clone https://github.com/nion-software/nionui-tool.git
           pushd nionui-tool/launcher
           PYTHON=`python -c "import sys; print(sys.executable, end='')"`
+          GIT_REPO="nion-software/nionui-tool"
+          GIT_REF=${{ env.tool_source_version }}
           GIT_SHA=$(git rev-parse HEAD)
-          cmake CMakeLists.txt -DGIT_REPO="nion-software/nionswift-tool" -DGIT_REF="${{ tool_source_version }}" -DGIT_SHA="${{ GIT_SHA }}"
+          echo "GIT_REPO=${GIT_REPO} GIT_REF=${GIT_REF} GIT_SHA=${GIT_SHA}"
+          cmake CMakeLists.txt -DGIT_REPO=${GIT_REPO} -DGIT_REF="${GIT_REF}" -DGIT_SHA=${GIT_SHA}
           cmake --build . --config Release
           popd
         fi
