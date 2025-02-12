@@ -30,16 +30,16 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
-      product_name: NionSwift-16.13.0
-      python_version: 3.13.1
+      product_name: NionSwift-16.14.0
+      python_version: 3.13.2
 
       # version of nionui-tool to use as basis of tool build
-      tool_source_version: 5.1.0
+      tool_source_version: 5.1.3
 
       # qt_version, qt_platform specify which version of Qt to use.
       # these should be regularly updated to the latest usable version.
       # these are only used if building the tool from source.
-      qt_version: 6.8.1
+      qt_version: 6.8.2
       qt_platform: macos
 
     steps:
@@ -94,7 +94,8 @@ jobs:
           git clone https://github.com/nion-software/nionui-tool.git
           pushd nionui-tool/launcher
           PYTHON=`python -c "import sys; print(sys.executable, end='')"`
-          cmake CMakeLists.txt -DPython3_EXECUTABLE="$PYTHON"
+          GIT_SHA=$(git rev-parse HEAD)
+          cmake CMakeLists.txt -DGIT_REPO="nion-software/nionswift-tool" -DGIT_REF="${{ tool_source_version }}" -DGIT_SHA="${{ GIT_SHA }}"
           cmake --build . --config Release
           popd
         fi
