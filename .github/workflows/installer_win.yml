@@ -149,7 +149,7 @@ jobs:
         name: ${{ env.product_name }}.zip
         path: ${{ env.product_name }}.zip
     - name: Upload Product MSI
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.product_name }}.msi
         path: wix\${{ env.product_name }}.${{ env.version_minor }}.msi
