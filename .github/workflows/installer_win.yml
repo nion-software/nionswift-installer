@@ -37,6 +37,7 @@ jobs:
       version_major: 16
       version_minor: 14
       version_patch: 0
+      version_revision: "_1"
       qt_version: 6.8.2
       qt_platform: msvc2022_64
       python_version: 3.13.2
@@ -154,4 +155,4 @@ jobs:
       with:
         if-no-files-found: error
         name: ${{ env.product_name }}.msi
-        path: wix\${{ env.product_name }}.${{ env.version_minor }}.msi
+        path: wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi
