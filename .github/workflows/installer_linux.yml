@@ -53,5 +53,6 @@ jobs:
     - name: Upload Product
       uses: actions/upload-artifact@v4
       with:
+        if-no-files-found: error
         name: ${{ env.product_name }}-${{ env.platform }}.AppImage
         path: ${{ env.product_name }}-${{ env.platform }}.AppImage

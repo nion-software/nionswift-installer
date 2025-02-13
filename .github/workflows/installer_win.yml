@@ -146,10 +146,12 @@ jobs:
     - name: Upload Product Zip
       uses: actions/upload-artifact@v4
       with:
+        if-no-files-found: error
         name: ${{ env.product_name }}.zip
         path: ${{ env.product_name }}.zip
     - name: Upload Product MSI
       uses: actions/upload-artifact@v4
       with:
+        if-no-files-found: error
         name: ${{ env.product_name }}.msi
         path: wix\${{ env.product_name }}.${{ env.version_minor }}.msi
