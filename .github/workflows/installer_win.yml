@@ -31,7 +31,7 @@ jobs:
       # these should be regularly updated to the latest usable version.
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
-      product_name: NionSwift-16
+      product_name: NionSwift-16_14_0_1
       product_identifier: Nion_Swift_16_14
       version_overall: 16
       version_major: 16
