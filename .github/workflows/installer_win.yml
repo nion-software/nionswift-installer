@@ -137,7 +137,7 @@ jobs:
 
         # use CMake + wix extensions to build an installer.
         pushd wix
-        cmake .\CMakeLists.txt -DVERSION_OVERALL="${env:version_overall}" -DVERSION_MAJOR="${env:version_major}" -DVERSION_MINOR="${env:version_minor}" -DVERSION_PATCH="${env:version_patch} -DVERSION_REVISION="${env:version_revision}"
+        cmake .\CMakeLists.txt -DVERSION_OVERALL="${env:version_overall}" -DVERSION_MAJOR="${env:version_major}" -DVERSION_MINOR="${env:version_minor}" -DVERSION_PATCH="${env:version_patch}" -DVERSION_REVISION="${env:version_revision}"
         cpack
         popd
 
