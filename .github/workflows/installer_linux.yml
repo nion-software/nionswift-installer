@@ -29,9 +29,9 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
-      product_name: NionSwift-16.14.0_1
+      product_name: NionSwift-16.16.0
       platform: x86_64
-      tool_source_version: 5.1.3
+      tool_source_version: 5.1.5
 
     steps:
     - uses: actions/checkout@v4
@@ -52,7 +52,12 @@ jobs:
         chmod +x /usr/local/bin/appimagetool
         python -m venv venv-appimage
         source ./venv-appimage/bin/activate
+        # appimage-builder requires pip 24.3 as of version 1.1.0 (which hasn't been updated for a while)
+        python -m pip install pip==24.3
+        # python -m pip install --upgrade pip
+        echo "Installing appimage-builder"
         python -m pip install appimage-builder
+        echo "Running appimage-builder with recipe nionswift_appimage.yml"
         appimage-builder --recipe nionswift_appimage.yml
 
     - name: Setup Cosign
