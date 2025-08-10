@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build:
 
@@ -143,16 +147,50 @@ jobs:
 
         Compress-Archive ".\dist\${env:product_identifier}" "${{env.product_name}}.zip"
 
+    - name: Setup Cosign
+      uses: sigstore/cosign-installer@v3
+
+    - name: Sign the zip file and the msi file
+      run: |
+        # Use cosign sign-blob to sign the zip file.
+        cosign sign-blob --verbose --yes ${{env.product_name}}.zip --bundle ${{env.product_name}}.zip.cosign.bundle
+        $url = ((((Get-Content ${{env.product_name}}.zip.cosign.bundle | ConvertFrom-Json).cert | ForEach-Object { [System.Security.Cryptography.X509Certificates.X509Certificate2]([System.Convert]::FromBase64String($_)) }).Extensions) | Where-Object { $_.Oid.FriendlyName -eq 'Subject Alternative Name' }).Format($false).SubString(4)
+        Write-Output "cosign verify-blob ${{env.product_name}}.zip --certificate-identity=`"$url`" --certificate-oidc-issuer=`"https://token.actions.githubusercontent.com`" --bundle=${{env.product_name}}.zip.cosign.bundle"
+
+        # Use cosign sign-blob to sign the msi file.
+        cosign sign-blob --verbose --yes wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi --bundle wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi.cosign.bundle
+        $url = ((((Get-Content wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi.cosign.bundle | ConvertFrom-Json).cert | ForEach-Object { [System.Security.Cryptography.X509Certificates.X509Certificate2]([System.Convert]::FromBase64String($_)) }).Extensions) | Where-Object { $_.Oid.FriendlyName -eq 'Subject Alternative Name' }).Format($false).SubString(4)
+        Write-Output "cosign verify-blob ${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi --certificate-identity=`"$url`" --certificate-oidc-issuer=`"https://token.actions.githubusercontent.com`" --bundle=${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi.cosign.bundle"
+
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product Zip
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
         name: ${{ env.product_name }}.zip
-        path: ${{ env.product_name }}.zip
+        path: |
+          ${{ env.product_name }}.zip
+
+    - name: Upload Zip Signature
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: ${{ env.product_name }}.zip.cosign.bundle
+        path: |
+          ${{ env.product_name }}.zip.cosign.bundle
+
     - name: Upload Product MSI
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
         name: ${{ env.product_name }}.msi
-        path: wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi
+        path: |
+          wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi
+
+    - name: Upload Product MSI Signature
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: ${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi.cosign.bundle
+        path: |
+          wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi.cosign.bundle

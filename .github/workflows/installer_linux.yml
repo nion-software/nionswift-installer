@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build:
 
@@ -37,6 +41,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
 
@@ -49,6 +54,16 @@ jobs:
         source ./venv-appimage/bin/activate
         python -m pip install appimage-builder
         appimage-builder --recipe nionswift_appimage.yml
+
+    - name: Setup Cosign
+      uses: sigstore/cosign-installer@v3
+
+    - name: Sign the zip file
+      run: |
+        # Use cosign sign-blob to sign the zip file.
+        base_file="${{ env.product_name }}-${{ env.platform }}.AppImage"
+        cosign sign-blob --verbose --yes $base_file --bundle $base_file.cosign.bundle
+
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product
       uses: actions/upload-artifact@v4
@@ -56,3 +71,10 @@ jobs:
         if-no-files-found: error
         name: ${{ env.product_name }}-${{ env.platform }}.AppImage
         path: ${{ env.product_name }}-${{ env.platform }}.AppImage
+
+    - name: Upload Product Signature
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: ${{ env.product_name }}-${{ env.platform }}.AppImage.cosign.bundle
+        path: ${{ env.product_name }}-${{ env.platform }}.AppImage.cosign.bundle
