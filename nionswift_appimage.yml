@@ -21,10 +21,10 @@ AppDir:
   apt:
     arch: amd64
     sources:
-      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu focal main universe'
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy main universe'
         key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3b4fe6acc0b21f32'
       # Add "deadsnakes" PPA for more recent Python versions
-      - sourceline: 'deb [arch=amd64] http://ppa.launchpad.net/deadsnakes/ppa/ubuntu focal main'
+      - sourceline: 'deb [arch=amd64] http://ppa.launchpad.net/deadsnakes/ppa/ubuntu jammy main'
         key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xba6932366a755776'
 
     include:
