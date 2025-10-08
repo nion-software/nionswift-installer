@@ -36,23 +36,23 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       product_name: NionSwift-16
-      product_identifier: Nion_Swift_16_16_0
+      product_identifier: Nion_Swift_16_16_1
       version_overall: 16
       version_major: 16
       version_minor: 16
-      version_patch: 0
+      version_patch: 1
       version_revision: ""
-      qt_version: 6.9.1
+      qt_version: 6.9.3
       qt_platform: msvc2022_64
-      python_version: 3.13.6
+      python_version: 3.13.7
       tool_source_version: 5.1.5
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version

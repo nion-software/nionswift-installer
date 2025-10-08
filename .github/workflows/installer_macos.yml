@@ -30,8 +30,8 @@ jobs:
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
       app_name: "Nion Swift 16"
-      product_name: NionSwift-16.16.0
-      python_version: 3.13.6
+      product_name: NionSwift-16.16.1
+      python_version: 3.13.7
 
       # version of nionui-tool to use as basis of tool build
       tool_source_version: 5.1.5
@@ -39,15 +39,15 @@ jobs:
       # qt_version, qt_platform specify which version of Qt to use.
       # these should be regularly updated to the latest usable version.
       # these are only used if building the tool from source.
-      qt_version: 6.9.1
+      qt_version: 6.9.3
       qt_platform: macos
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: Display Python version
