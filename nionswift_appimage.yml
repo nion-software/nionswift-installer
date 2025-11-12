@@ -95,7 +95,7 @@ AppDir:
     APPDIR=./AppDir
     wget https://bootstrap.pypa.io/get-pip.py
     ${APPDIR}/usr/bin/python3.13 get-pip.py
-    ${APPDIR}/usr/bin/python3.13 -m pip install nionswift nionswift-usim nionswift-tool
+    ${APPDIR}/usr/bin/python3.13 -m pip install nionswift nionswift-tool nionswift-usim nionswift-eels-analysis nionswift-experimental
     ls -Rl ${APPDIR}
     cp linux_toolconfig.toml ${APPDIR}/usr/local/bin/NionSwiftLauncher/toolconfig.toml
 
