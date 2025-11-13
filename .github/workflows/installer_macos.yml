@@ -29,8 +29,8 @@ jobs:
       # product_name is the name of the disk image (.dmg) that gets built.
       # python_version specifies which version of Python to use.
       # this should be regularly updated to the latest usable version.
-      app_name: "Nion Swift 16"
-      product_name: NionSwift-16.16.1
+      app_name: "Nion Swift 16 Experimental"
+      product_name: NionSwift-X-16.16.1
       python_version: 3.13.7
 
       # version of nionui-tool to use as basis of tool build
@@ -142,7 +142,7 @@ jobs:
         # python -m pip install ./nionswift-usim
 
         # install the latest released version in the activated Python environment.
-        python -m pip install nionswift nionswift-tool nionswift-eels-analysis nionswift-usim
+        python -m pip install nionswift nionswift-tool nionswift-eels-analysis nionswift-usim nionswift-experimental
 
         # deactivate the environment since everything is installed.
         deactivate

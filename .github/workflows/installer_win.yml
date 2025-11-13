@@ -124,7 +124,7 @@ jobs:
         # python -m pip install ./nionswift-usim
 
         # install the latest released version in the activated Python environment.
-        python -m pip install nionswift nionswift-eels-analysis nionswift-usim
+        python -m pip install nionswift nionswift-eels-analysis nionswift-usim nionswift-experimental
 
         # deactivate the environment since everything is installed.
         deactivate
