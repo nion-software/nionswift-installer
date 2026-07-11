@@ -34,7 +34,7 @@ jobs:
       tool_source_version: 5.3.0
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
@@ -71,15 +71,17 @@ jobs:
 
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         if-no-files-found: error
+        archive: False
         name: ${{ env.product_name }}-${{ env.platform }}.AppImage
         path: ${{ env.product_name }}-${{ env.platform }}.AppImage
 
     - name: Upload Product Signature
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         if-no-files-found: error
+        archive: False
         name: ${{ env.product_name }}-${{ env.platform }}.AppImage.cosign.bundle
         path: ${{ env.product_name }}-${{ env.platform }}.AppImage.cosign.bundle

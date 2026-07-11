@@ -49,7 +49,7 @@ jobs:
       tool_source_version: 5.3.0
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     # first set up Python
     - name: Set up Python ${{ matrix.python-version }}
@@ -179,33 +179,37 @@ jobs:
 
     # finally, upload the artifacts of the build so that they are available on the GitHub action page.
     - name: Upload Product Zip
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         if-no-files-found: error
+        archive: False
         name: ${{ env.product_name }}.zip
         path: |
           ${{ env.product_name }}.zip
 
     - name: Upload Zip Signature
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         if-no-files-found: error
+        archive: False
         name: ${{ env.product_name }}.zip.cosign.bundle
         path: |
           ${{ env.product_name }}.zip.cosign.bundle
 
     - name: Upload Product MSI
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         if-no-files-found: error
+        archive: False
         name: ${{ env.product_name }}.msi
         path: |
           wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi
 
     - name: Upload Product MSI Signature
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         if-no-files-found: error
+        archive: False
         name: ${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi.cosign.bundle
         path: |
           wix\${{ env.product_name }}.${{ env.version_minor }}.${{ env.version_patch }}${{ env.version_revision }}.msi.cosign.bundle
