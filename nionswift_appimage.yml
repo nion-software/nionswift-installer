@@ -15,7 +15,7 @@ AppDir:
     id: com.nion.nionswift
     name: NionSwift
     icon: NionSwift_Logo
-    version: 16.16.1
+    version: 16.18.1
     exec: usr/local/bin/NionSwiftLauncher/NionSwiftLauncher
 
   apt:
@@ -28,9 +28,9 @@ AppDir:
         key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xba6932366a755776'
 
     include:
-      - python3.13
-      - python3.13-dev
-      - python3.13-venv
+      - python3.14
+      - python3.14-dev
+      - python3.14-venv
       - libxcb-sync1
       - libxcb-cursor0
 
@@ -94,8 +94,8 @@ AppDir:
   after_bundle: |
     APPDIR=./AppDir
     wget https://bootstrap.pypa.io/get-pip.py
-    ${APPDIR}/usr/bin/python3.13 get-pip.py
-    ${APPDIR}/usr/bin/python3.13 -m pip install nionswift nionswift-usim nionswift-tool
+    ${APPDIR}/usr/bin/python3.14 get-pip.py
+    ${APPDIR}/usr/bin/python3.14 -m pip install nionswift nionswift-usim nionswift-tool
     ls -Rl ${APPDIR}
     cp linux_toolconfig.toml ${APPDIR}/usr/local/bin/NionSwiftLauncher/toolconfig.toml
 
