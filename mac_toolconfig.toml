@@ -11,9 +11,9 @@
 #   identifier: the package identifier of the application. in this case, Nion Swift
 
 [python]
-home = "../Frameworks/Python.framework/Versions/3.13"
-library_name = "lib/libpython3.13.dylib"
-paths = ["lib/python313.zip", "lib/python3.13", "lib/python3.13/lib-dynload", "lib/python3.13/site-packages"]
+home = "../Frameworks/Python.framework/Versions/3.14"
+library_name = "lib/libpython3.14.dylib"
+paths = ["lib/python314.zip", "lib/python3.14", "lib/python3.14/lib-dynload", "lib/python3.14/site-packages"]
 
 [app]
 identifier = "nionui_app.nionswift"
