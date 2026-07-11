@@ -100,7 +100,7 @@ jobs:
         echo "GIT_REPO=${GIT_REPO} GIT_REF=${GIT_REF} GIT_SHA=${GIT_SHA}"
         popd
         pushd ${env:tool_source}/launcher
-        cmake CMakeLists.txt -DGIT_REPO="${GIT_REPO}" -DGIT_REF="${GIT_REF}" -DGIT_SHA="${GIT_SHA}" -DUSE_CONSOLE=OFF
+        cmake CMakeLists.txt -DGIT_REPO="${GIT_REPO}" -DGIT_REF="${GIT_REF}" -DGIT_SHA="${GIT_SHA}" -DUSE_CONSOLE=ON
         cmake --build . --config Release
         popd
 
