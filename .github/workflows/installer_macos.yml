@@ -119,7 +119,7 @@ jobs:
         tar -zxf python-$python_version-macos11/Python_Framework.pkg/Payload -C Python.framework
         echo "Running fix"
         python mac_fix_framework.py Python.framework/
-        python3.13 -m venv python-nionswift
+        python3.14 -m venv python-nionswift
         source python-nionswift/bin/activate
 
         # install latest version of nionswift (UNUSED EXCEPT FOR DEBUGGING)
@@ -166,7 +166,7 @@ jobs:
         # copy the Python framework. must go after copying the app.
         mv Python.framework "dist/$app_name.app/Contents/Frameworks"
         # site packages need to go in the right spot.
-        cp -R python-nionswift/lib/python3.13/site-packages/* "dist/$app_name.app/Contents/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+        cp -R python-nionswift/lib/python3.14/site-packages/* "dist/$app_name.app/Contents/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages"
         # config files for the tool. to allow codesigning, toolconfig is put into Resources.
         cp mac_toolconfig.toml "dist/$app_name.app/Contents/Resources/toolconfig.toml"
         cp "nionswift-tool/launcher/Graphics/MacIcon.icns" "dist/$app_name.app/Contents/Resources/"
@@ -191,7 +191,7 @@ jobs:
           # remove files that will not be signed and have can be regenerated
           find "dist/$app_name.app" -name "__pycache__" -exec rm -rf {} \; -prune
           find "dist/$app_name.app" -name "*.pyc" -exec rm -rf {} \; -prune
-          # these files started appearing in Python 3.13; remove them.
+          # these files started appearing in Python 3.14; remove them.
           find "dist/$app_name.app" -name "._*" -exec rm {} \;
           # sign files from the inside out. first ensure that dylibs are executable. then find all executable files
           # and sign them. then sign apps within frameworks. then sign frameworks. then sign the app itself.
