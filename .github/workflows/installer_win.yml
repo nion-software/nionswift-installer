@@ -45,6 +45,7 @@ jobs:
       qt_version: 6.11.1
       qt_platform: msvc2022_64
       python_version: 3.14.6
+      tool_source: nionswift-tool
       tool_source_version: 5.3.0
 
     steps:
@@ -71,20 +72,34 @@ jobs:
         # next, install Qt using the aqt tool. only install the required Qt modules.
         # then configure the Qt6_DIR variable (used by cmake), install numpy (used by
         # cmake). then git clone the tool source code. finally run cmake.
-        pip install aqtinstall
+        # NOTE NOTE NOTE to install Qt 6.11, aqtinstall requires a release more recent than 3.3.0
+        pip install git+https://github.com/miurahr/aqtinstall.git@073e34d7c2ab4ae6961ed7cca690b3abd5ba5a7e
+        # pip install aqtinstall
         mkdir Qt
         echo "Installing Qt ${env:qt_version} (${env:qt_platform})"
         python -m aqt install-qt --outputdir Qt windows desktop ${env:qt_version} win64_${env:qt_platform}
         # see https://bugreports.qt.io/browse/QTBUG-97615
-        $ENV:Qt6_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt6"
-        $ENV:QT_ADDITIONAL_PACKAGES_PREFIX_PATH = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}"
-        git clone https://github.com/nion-software/nionswift-tool.git --branch ${env:tool_source_version} --single-branch
-        pushd nionswift-tool/launcher
-        $PYTHON_EXEC = python -c "import sys; print(sys.executable, end='')"
-        $GIT_REPO = "nion-software/nionswift-tool"
+        $Env:Qt6_DIR = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}\lib\cmake\Qt6"
+        $Env:QT_ADDITIONAL_PACKAGES_PREFIX_PATH = (Get-Item -Path ".\").FullName + "\Qt\${env:qt_version}\${env:qt_platform}"
+        git clone https://github.com/nion-software/${env:tool_source}.git --branch ${env:tool_source_version} --single-branch
+
+        # Pull fix commit be6d044c12c1bb6f82015eba7586e7e9e82203d2 from nionui-tool (different repository) into this build branch.
+        pushd ${env:tool_source}
+        git remote add nionui-tool https://github.com/nion-software/nionui-tool.git
+        git fetch --no-tags nionui-tool master
+        git cherry-pick be6d044c12c1bb6f82015eba7586e7e9e82203d2
+        git remote remove nionui-tool
+        popd
+
+        pushd ${env:tool_source}
+        echo "$(git config --get remote.origin.url): $(git rev-parse --symbolic-full-name HEAD), $(git rev-parse HEAD)" >> ../build_info.txt
+        $GIT_REPO = (git config --get remote.origin.url).Split('/')[-1].Split('.')[0]
+        # $GIT_REF = (git rev-parse --symbolic-full-name HEAD).Trim()
         $GIT_REF = ${env:tool_source_version}
         $GIT_SHA = (git rev-parse HEAD).Trim()
         echo "GIT_REPO=${GIT_REPO} GIT_REF=${GIT_REF} GIT_SHA=${GIT_SHA}"
+        popd
+        pushd ${env:tool_source}/launcher
         cmake CMakeLists.txt -DGIT_REPO="${GIT_REPO}" -DGIT_REF="${GIT_REF}" -DGIT_SHA="${GIT_SHA}" -DUSE_CONSOLE=OFF
         cmake --build . --config Release
         popd
